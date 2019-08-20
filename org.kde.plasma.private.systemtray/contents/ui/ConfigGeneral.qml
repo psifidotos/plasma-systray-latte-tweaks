@@ -33,7 +33,7 @@ Item {
 
     width: childrenRect.width
     height: childrenRect.height
-    implicitWidth: mainColumn.implicitWidth
+    implicitWidth: pageColumn.implicitWidth
     implicitHeight: pageColumn.implicitHeight
 
     property alias cfg_applicationStatusShown: applicationStatus.checked
