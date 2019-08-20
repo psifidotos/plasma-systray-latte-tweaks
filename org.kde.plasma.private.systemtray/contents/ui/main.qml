@@ -61,6 +61,17 @@ MouseArea {
         }
     }
 
+    //! Latte Connection
+    property QtObject latteBridge: null
+    readonly property bool inLatte: latteBridge !== null
+
+    onLatteBridgeChanged: {
+        if (latteBridge) {
+            latteBridge.actions.setProperty(plasmoid.id, "latteSideColoringEnabled", false);
+        }
+    }
+    //!
+
     function updateItemVisibility(item) {
         switch (item.effectiveStatus) {
         case PlasmaCore.Types.HiddenStatus:
@@ -247,7 +258,8 @@ MouseArea {
             id: tasksRepeater
             model: statusNotifierModel
 
-            delegate: StatusNotifierItem {}
+            delegate: StatusNotifierItem {
+            }
         }
         //NOTE: this exists mostly for not causing reference errors
         property QtObject marginHints: QtObject {

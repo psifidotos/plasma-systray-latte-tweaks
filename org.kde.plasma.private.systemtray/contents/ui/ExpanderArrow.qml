@@ -24,6 +24,7 @@ import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.components 2.0 as PlasmaComponents
 import org.kde.plasma.extras 2.0 as PlasmaExtras
 
+import "items" as SystrayItem
 
 PlasmaCore.ToolTipArea {
     id: tooltip
@@ -112,5 +113,10 @@ PlasmaCore.ToolTipArea {
                 }
             }
         }
+    }
+
+    layer.enabled: root.inLatte
+    layer.effect: SystrayItem.ColorizedLayer {
+        isHovered: arrowMouseArea.containsMouse
     }
 }

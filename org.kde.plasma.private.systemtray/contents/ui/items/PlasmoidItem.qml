@@ -80,4 +80,9 @@ AbstractItem {
             }
         }
     }
+
+    layer.enabled: root.inLatte && !plasmoidContainer.hidden && (plasmoid.configuration.blockedAutoColorItems.indexOf(itemId) < 0)
+    layer.effect: ColorizedLayer {
+        isHovered: plasmoidContainer.containsMouse
+    }
 }

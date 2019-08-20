@@ -37,6 +37,7 @@ ColumnLayout {
     property var cfg_shownItems: []
     property var cfg_hiddenItems: []
     property alias cfg_showAllItems: showAllCheckBox.checked
+    property var cfg_blockedAutoColorItems: []
 
     function saveConfig () {
         for (var i in tableView.model) {
@@ -54,13 +55,13 @@ ColumnLayout {
         Component.onCompleted: {
             connectedSources = sources
         }
-   }
+    }
 
     PlasmaCore.SortFilterModel {
-       id: statusNotifierModel
-       sourceModel: PlasmaCore.DataModel {
-           dataSource: statusNotifierSource
-       }
+        id: statusNotifierModel
+        sourceModel: PlasmaCore.DataModel {
+            dataSource: statusNotifierSource
+        }
     }
 
 
@@ -74,6 +75,12 @@ ColumnLayout {
         QQC2.Button { // just for measurement
             id: measureButton
             text: "measureButton"
+            visible: false
+        }
+
+        QQC2.Label {// just for measurement
+            id: autoColorMeasureLabel
+            text: autoColorColumn.title
             visible: false
         }
 
@@ -91,24 +98,24 @@ ColumnLayout {
         for (var i = 0; i < statusNotifierModel.count; ++i) {
             var item = statusNotifierModel.get(i);
             list.push({
-                "index": i,
-                "taskId": item.Id,
-                "name": item.Title,
-                "iconName": item.IconName,
-                "icon": item.Icon
-            });
+                          "index": i,
+                          "taskId": item.Id,
+                          "name": item.Title,
+                          "iconName": item.IconName,
+                          "icon": item.Icon
+                      });
         }
         var lastIndex = list.length;
         for (var i = 0; i < plasmoid.applets.length; ++i) {
             var item = plasmoid.applets[i]
             list.push({
-                "index": (i + lastIndex),
-                "applet": item,
-                "taskId": item.pluginName,
-                "name": item.title,
-                "iconName": item.icon,
-                "shortcut": item.globalShortcut
-            });
+                          "index": (i + lastIndex),
+                          "applet": item,
+                          "taskId": item.pluginName,
+                          "name": item.title,
+                          "iconName": item.icon,
+                          "shortcut": item.globalShortcut
+                      });
         }
         list.sort(function(a, b) {
             return a.name.localeCompare(b.name);
@@ -128,6 +135,7 @@ ColumnLayout {
 
         Component.onCompleted: {
             visibilityColumn.resizeToContents()
+            autoColorColumn.resizeToContents()
             shortcutColumn.resizeToContents()
         }
 
@@ -142,7 +150,7 @@ ColumnLayout {
 
         QQC1.TableViewColumn {
             id: entryColumn
-            width: tableView.viewport.width - visibilityColumn.width - shortcutColumn.width
+            width: tableView.viewport.width - visibilityColumn.width - shortcutColumn.width - autoColorColumn.width
             title: i18nc("Name of the system tray entry", "Entry")
             movable: false
             resizable: false
@@ -229,6 +237,42 @@ ColumnLayout {
         }
 
         QQC1.TableViewColumn {
+            id: autoColorColumn
+            title: i18n("Auto Color")
+            movable: false
+            resizable: false
+
+            delegate: Item{
+                implicitWidth: autoColorMeasureLabel.width + 10
+                height: autoColorChkBox.height
+
+                QQC2.CheckBox {
+                    id: autoColorChkBox
+                    anchors.centerIn: parent
+
+                    checked: cfg_blockedAutoColorItems.indexOf(modelData.taskId) === -1
+
+                    onToggled: {
+                        var blockedIndex = cfg_blockedAutoColorItems.indexOf(modelData.taskId);
+                        var updated = false;
+
+                        if (checked && blockedIndex >= 0) {
+                            cfg_blockedAutoColorItems.splice(blockedIndex, 1);
+                            updated = true;
+                        } else if (!checked && blockedIndex === -1) {
+                            cfg_blockedAutoColorItems.push(modelData.taskId);
+                            updated = true;
+                        }
+
+                        if (updated) {
+                            iconsPage.configurationChanged();
+                        }
+                    }
+                }
+            }
+        }
+
+        QQC1.TableViewColumn {
             id: shortcutColumn
             title: i18n("Keyboard Shortcut") // FIXME doesn't fit
             movable: false
@@ -236,7 +280,7 @@ ColumnLayout {
 
             // this Item wrapper prevents TableView from ripping apart the two KeySequenceItem buttons
             delegate: Item {
-                implicitWidth: Math.max(shortcutColumnMeasureLabel.width, keySequenceItem.width) + 10
+                implicitWidth: Math.max(shortcutColumnMeasureLabel.width, keySequenceItem.width,) + 10
                 height: keySequenceItem.height
 
                 KQC.KeySequenceItem {
