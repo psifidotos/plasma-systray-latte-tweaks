@@ -24,7 +24,7 @@ import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.components 2.0 as PlasmaComponents
 import org.kde.plasma.extras 2.0 as PlasmaExtras
 
-import "items" as SystrayItem
+import QtGraphicalEffects 1.0
 
 PlasmaCore.ToolTipArea {
     id: tooltip
@@ -115,8 +115,39 @@ PlasmaCore.ToolTipArea {
         }
     }
 
-    layer.enabled: root.inLatte
-    layer.effect: SystrayItem.ColorizedLayer {
-        isHovered: arrowMouseArea.containsMouse
+    //!Latte Coloring Approach with Colorizer and BrightnessContrast for hovering effect
+    Loader {
+        id: colorizerLoader
+        anchors.fill: parent
+        active: root.inLatte
+        z:1000
+
+        sourceComponent: ColorOverlay {
+            anchors.fill: parent
+            source: tooltip
+            color: root.inLatte ? latteBridge.palette.textColor : "transparent"
+        }
     }
+
+    Loader {
+        id: hoveredColorizerLoader
+        anchors.fill: parent
+        active: colorizerLoader.active
+        z:1001
+
+        sourceComponent: BrightnessContrast {
+            anchors.fill: parent
+            source: colorizerLoader.item
+            brightness: 0.2
+            contrast: 0.1
+
+            opacity: arrowMouseArea.containsMouse ? 1 : 0
+
+            Behavior on opacity {
+                NumberAnimation { duration: 200 }
+            }
+        }
+    }
+
+
 }

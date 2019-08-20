@@ -126,9 +126,4 @@ AbstractItem {
             service.startOperationCall(operation);
         }
     }
-
-    layer.enabled: root.inLatte && !taskIcon.hidden && (plasmoid.configuration.blockedAutoColorItems.indexOf(itemId) < 0)
-    layer.effect: ColorizedLayer {
-        isHovered: taskIcon.containsMouse
-    }
 }
