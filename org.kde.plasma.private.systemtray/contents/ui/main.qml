@@ -307,7 +307,7 @@ MouseArea {
     //Main Layout
     Flow {
         id: tasksRow
-        spacing: 0
+        spacing: plasmoid.configuration.iconsSpacing
         height: parent.height - (vertical && expander.visible ? expander.height : 0)
         width: parent.width - (vertical || !expander.visible ? 0 : expander.width)
         property string skipItems
