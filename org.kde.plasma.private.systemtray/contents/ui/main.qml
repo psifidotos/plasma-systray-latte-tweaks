@@ -79,21 +79,17 @@ MouseArea {
                 return;
             }
 
-            item.blockColorizer = true;
             item.parent = invisibleEntriesContainer;
             break;
 
         case PlasmaCore.Types.ActiveStatus:
             if (visibleLayout.children.length === 0) {
-                item.blockColorizer = false;
                 item.parent = visibleLayout;
             //notifications is always the first
             } else if (visibleLayout.children[0].itemId === "org.kde.plasma.notifications" &&
                        item.itemId !== "org.kde.plasma.notifications") {
-                item.blockColorizer = false;
                 plasmoid.nativeInterface.reorderItemAfter(item, visibleLayout.children[0]);
             } else if (visibleLayout.children[0] !== item) {
-                item.blockColorizer = false;
                 plasmoid.nativeInterface.reorderItemBefore(item, visibleLayout.children[0]);
             }
             break;
@@ -101,15 +97,12 @@ MouseArea {
         case PlasmaCore.Types.PassiveStatus:
 
             if (hiddenLayout.children.length === 0) {
-                item.blockColorizer = true;
                 item.parent = hiddenLayout;
             //notifications is always the first
             } else if (hiddenLayout.children[0].itemId === "org.kde.plasma.notifications" &&
                        item.itemId !== "org.kde.plasma.notifications") {
-                item.blockColorizer = true;
                 plasmoid.nativeInterface.reorderItemAfter(item, hiddenLayout.children[0]);
             } else if (hiddenLayout.children[0] !== item) {
-                item.blockColorizer = true;
                 plasmoid.nativeInterface.reorderItemBefore(item, hiddenLayout.children[0]);
             }
             item.x = 0;
