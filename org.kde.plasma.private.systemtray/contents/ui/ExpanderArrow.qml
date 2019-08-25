@@ -124,7 +124,7 @@ PlasmaCore.ToolTipArea {
 
         sourceComponent: ColorOverlay {
             anchors.fill: parent
-            source: tooltip
+            source: arrowMouseArea
             color: root.inLatte ? latteBridge.palette.textColor : "transparent"
         }
     }

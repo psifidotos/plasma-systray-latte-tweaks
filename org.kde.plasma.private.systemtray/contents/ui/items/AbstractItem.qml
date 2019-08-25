@@ -41,15 +41,6 @@ PlasmaCore.ToolTipArea {
     property int status
     property QtObject model
 
-    //! Latte-specific flag which is used in order to not block qml.
-    //! The Colorizer is using a Qt Graphics Effect but because tasks/plasmoids
-    //! are moving between the panel and the popup window
-    //! that could break the normal qml functionality for some of them when moving between
-    //! different windows. By using this flag we make sure that the
-    //! Colorizer is created and exists ONLY when the task/plasmoid is in the
-    //! panel and not the popup
-    property bool blockColorizer: false
-
     signal clicked(var mouse)
     signal wheel(var wheel)
     signal contextMenu(var mouse)
@@ -155,8 +146,7 @@ PlasmaCore.ToolTipArea {
     Loader {
         id: colorizerLoader
         anchors.fill: parent
-        active: !abstractItem.blockColorizer
-               && root.inLatte
+        active: root.inLatte
                && !hidden
                && !labelVisible
                && itemId.length > 0
@@ -166,7 +156,7 @@ PlasmaCore.ToolTipArea {
 
         sourceComponent: ColorOverlay {
             anchors.fill: parent
-            source: abstractItem
+            source: iconItem
             color: root.inLatte ? latteBridge.palette.textColor : "transparent"
         }
     }
