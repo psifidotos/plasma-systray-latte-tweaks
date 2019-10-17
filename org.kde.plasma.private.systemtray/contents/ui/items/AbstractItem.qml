@@ -42,6 +42,7 @@ PlasmaCore.ToolTipArea {
     property QtObject model
 
     signal clicked(var mouse)
+    signal pressed(var mouse)
     signal wheel(var wheel)
     signal contextMenu(var mouse)
 
@@ -110,9 +111,7 @@ PlasmaCore.ToolTipArea {
         onClicked: abstractItem.clicked(mouse)
         onPressed: {
             abstractItem.hideToolTip()
-            if (mouse.button === Qt.RightButton) {
-                abstractItem.contextMenu(mouse)
-            }
+            abstractItem.pressed(mouse)
         }
         onPressAndHold: {
             abstractItem.contextMenu(mouse)
