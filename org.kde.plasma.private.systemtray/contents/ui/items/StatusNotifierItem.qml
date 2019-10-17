@@ -38,7 +38,7 @@ AbstractItem {
             return PlasmaCore.Types.ActiveStatus;
         case "NeedsAttention":
             return PlasmaCore.Types.NeedsAttentionStatus;
-        //just assume passive
+            //just assume passive
         default:
             return PlasmaCore.Types.PassiveStatus;
         }

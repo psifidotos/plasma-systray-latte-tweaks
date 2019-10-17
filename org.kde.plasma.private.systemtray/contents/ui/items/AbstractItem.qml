@@ -21,6 +21,8 @@ import QtQuick 2.1
 import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.components 2.0 as PlasmaComponents
 
+import QtGraphicalEffects 1.0
+
 PlasmaCore.ToolTipArea {
     id: abstractItem
 
@@ -61,7 +63,7 @@ PlasmaCore.ToolTipArea {
     /* subclasses need to assign to this tiiltip properties
     mainText:
     subText:
-    icon: 
+    icon:
     */
 
     location: {
@@ -76,7 +78,7 @@ PlasmaCore.ToolTipArea {
         return plasmoid.location;
     }
 
-//BEGIN CONNECTIONS
+    //BEGIN CONNECTIONS
 
     onEffectiveStatusChanged: updateItemVisibility(abstractItem);
 
@@ -91,13 +93,13 @@ PlasmaCore.ToolTipArea {
     //dangerous but needed due how repeater reparents
     onParentChanged: updateItemVisibility(abstractItem);
 
-//END CONNECTIONS
+    //END CONNECTIONS
 
     PulseAnimation {
         targetItem: iconItem
         running: (abstractItem.status === PlasmaCore.Types.NeedsAttentionStatus ||
-            abstractItem.status === PlasmaCore.Types.RequiresAttentionStatus ) &&
-            units.longDuration > 0
+                  abstractItem.status === PlasmaCore.Types.RequiresAttentionStatus ) &&
+                 units.longDuration > 0
     }
 
     MouseArea {
@@ -138,5 +140,45 @@ PlasmaCore.ToolTipArea {
             }
         }
     }
+
+    //!Latte Coloring Approach with Colorizer and BrightnessContrast for hovering effect
+    Loader {
+        id: colorizerLoader
+        anchors.fill: parent
+        active: root.inLatte
+               && !hidden
+               && !labelVisible
+               && itemId.length > 0
+               && (plasmoid.configuration.blockedAutoColorItems.indexOf(itemId) < 0)
+
+        z:1000
+
+        sourceComponent: ColorOverlay {
+            anchors.fill: parent
+            source: iconItem
+            color: root.inLatte ? latteBridge.palette.textColor : "transparent"
+        }
+    }
+
+    Loader {
+        id: hoveredColorizerLoader
+        anchors.fill: parent
+        active: colorizerLoader.active
+        z:1001
+
+        sourceComponent: BrightnessContrast {
+            anchors.fill: parent
+            source: colorizerLoader.item
+            brightness: 0.2
+            contrast: 0.1
+
+            opacity: abstractItem.containsMouse ? 1 : 0
+
+            Behavior on opacity {
+                NumberAnimation { duration: 200 }
+            }
+        }
+    }
+
 }
 

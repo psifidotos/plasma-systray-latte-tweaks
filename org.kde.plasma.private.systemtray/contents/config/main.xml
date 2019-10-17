@@ -54,6 +54,15 @@
       <label>Whether the popup should remain open when another window is activated</label>
       <default>false</default>
     </entry>
+    
+    <entry name="iconsSpacing" type="Int">
+      <label>Spacing between systray icons in pixels</label>
+      <default>0</default>
+    </entry>
+    <entry name="blockedAutoColorItems" type="StringList">
+      <label>All items that are not auto-colored based on Latte provided color palette. It's a comma-separated string list of unique identifiers that are either plasmoid plugin ids or StatusNotifier ids.</label>
+      <default></default>
+    </entry>
   </group>
 
 </kcfg>
