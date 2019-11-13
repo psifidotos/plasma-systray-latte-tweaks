@@ -360,8 +360,8 @@ MouseArea {
         id: expander
         anchors {
             fill: parent
-            leftMargin: vertical ? 0 : parent.width - implicitWidth
-            topMargin: vertical ? parent.height - implicitHeight : 0
+            leftMargin: vertical ? 0 : parent.width - implicitWidth - plasmoid.configuration.iconsSpacing
+            topMargin: vertical ? parent.height - implicitHeight - plasmoid.configuration.iconsSpacing : 0
         }
     }
 
