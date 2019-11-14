@@ -30,18 +30,20 @@ PlasmaCore.ToolTipArea {
     id: tooltip
 
     property bool vertical: plasmoid.formFactor === PlasmaCore.Types.Vertical
-    implicitWidth: units.iconSizes.smallMedium
-    implicitHeight: implicitWidth
+    implicitWidth: !vertical ? length : units.iconSizes.smallMedium
+    implicitHeight: vertical ? legnth : units.iconSizes.smallMedium
     visible: root.hiddenLayout.children.length > 0
 
     subText: root.expanded ? i18n("Close popup") : i18n("Show hidden icons")
+
+    readonly property int length: units.iconSizes.smallMedium + plasmoid.configuration.iconsSpacing
 
     MouseArea {
         id: arrowMouseArea
         anchors.fill: parent
         onClicked: root.expanded = !root.expanded
 
-        readonly property int arrowAnimationDuration: units.shortDuration * 3
+        readonly property int arrowAnimationDuration: units.shortDuration * 7
 
         PlasmaCore.Svg {
             id: arrowSvg
@@ -51,9 +53,10 @@ PlasmaCore.ToolTipArea {
         PlasmaCore.SvgItem {
             id: arrow
 
-            anchors.centerIn: parent
-            width: Math.min(parent.width, parent.height)
+            width: units.iconSizes.smallMedium
             height: width
+
+            transformOrigin: horizontal ? Item.Right : Item.Bottom
 
             rotation: root.expanded ? 180 : 0
             Behavior on rotation {
@@ -61,7 +64,7 @@ PlasmaCore.ToolTipArea {
                     duration: arrowMouseArea.arrowAnimationDuration
                 }
             }
-            opacity: root.expanded ? 0 : 1
+           // opacity: root.expanded ? 0 : 1
             Behavior on opacity {
                 NumberAnimation {
                     duration: arrowMouseArea.arrowAnimationDuration
@@ -80,38 +83,28 @@ PlasmaCore.ToolTipArea {
                     return "up-arrow";
                 }
             }
-        }
 
-        PlasmaCore.SvgItem {
-            anchors.centerIn: parent
-            width: arrow.width
-            height: arrow.height
+            states: [
+                ///horizontal
+                State {
+                    name: "horizontal"
+                    when: !vertical
 
-            rotation: root.expanded ? 0 : -180
-            Behavior on rotation {
-                RotationAnimation {
-                    duration: arrowMouseArea.arrowAnimationDuration
-                }
-            }
-            opacity: root.expanded ? 1 : 0
-            Behavior on opacity {
-                NumberAnimation {
-                    duration: arrowMouseArea.arrowAnimationDuration
-                }
-            }
+                    AnchorChanges {
+                        target: arrow
+                        anchors{ right: parent.right; verticalCenter:parent.verticalCenter; bottom: undefined; horizontalCenter: undefined}
+                    }
+                },
+                State {
+                    name: "vertical"
+                    when: vertical
 
-            svg: arrowSvg
-            elementId: {
-                if (plasmoid.location === PlasmaCore.Types.TopEdge) {
-                    return "up-arrow";
-                } else if (plasmoid.location === PlasmaCore.Types.LeftEdge) {
-                    return "left-arrow";
-                } else if (plasmoid.location === PlasmaCore.Types.RightEdge) {
-                    return "right-arrow";
-                } else {
-                    return "down-arrow";
+                    AnchorChanges {
+                        target: arrow
+                        anchors{ right: undefined; verticalCenter:undefined; bottom: parent.bottom; horizontalCenter: parent.horizontalCenter}
+                    }
                 }
-            }
+            ]
         }
     }
 
