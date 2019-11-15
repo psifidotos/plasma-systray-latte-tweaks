@@ -59,6 +59,10 @@
       <label>Spacing between systray icons in pixels</label>
       <default>0</default>
     </entry>
+    <entry name="internalMainHighlightEnabled" type="Bool">
+      <label>internal main highlight state</label>
+      <default>true</default>
+    </entry>    
     <entry name="blockedAutoColorItems" type="StringList">
       <label>All items that are not auto-colored based on Latte provided color palette. It's a comma-separated string list of unique identifiers that are either plasmoid plugin ids or StatusNotifier ids.</label>
       <default></default>
