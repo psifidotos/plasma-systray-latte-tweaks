@@ -32,12 +32,19 @@ Item {
     implicitHeight: pageColumn.implicitHeight
 
     property alias cfg_iconsSpacing: iconsSpacing.value
+    property alias cfg_internalMainHighlightEnabled: internalHighlightChk.checked
 
     Kirigami.FormLayout {
         id: pageColumn
         anchors {
             left: parent.left
             right: parent.right
+        }
+
+        QtControls.CheckBox {
+            id: internalHighlightChk
+            text: i18n("Internal highlight for main popup window is enabled")
+            Kirigami.FormData.label: i18n("Highlight:")
         }
 
         QtControls.SpinBox{
