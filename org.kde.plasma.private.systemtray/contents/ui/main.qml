@@ -64,12 +64,16 @@ MouseArea {
     //! Latte Connection
     property QtObject latteBridge: null
     readonly property bool inLatte: latteBridge !== null
+    readonly property bool internalMainHighlightEnabled: plasmoid.configuration.internalMainHighlightEnabled
 
     onLatteBridgeChanged: {
         if (latteBridge) {
             latteBridge.actions.setProperty(plasmoid.id, "latteSideColoringEnabled", false);
+            cItemHighlight.informLatteIndicator();
         }
     }
+
+    onInternalMainHighlightEnabledChanged: cItemHighlight.informLatteIndicator()
     //!
 
     function updateItemVisibility(item) {
@@ -271,9 +275,29 @@ MouseArea {
     }
 
     CurrentItemHighLight {
+        id: cItemHighlight
         visualParent: tasksRow
         target: root.activeApplet && root.activeApplet.parent.parent == tasksRow ? root.activeApplet.parent : root
         location: plasmoid.location
+
+        function informLatteIndicator() {
+            if (!inLatte) {
+                return;
+            }
+
+            if (root.internalMainHighlightEnabled || target !== root) {
+                latteBridge.actions.setProperty(plasmoid.id, "activeIndicatorEnabled", false);
+            } else if (target) {
+                latteBridge.actions.setProperty(plasmoid.id, "activeIndicatorEnabled", true);
+            }
+        }
+
+        onTargetChanged: cItemHighlight.informLatteIndicator()
+
+        Connections {
+            target: root
+            onInLatteChanged: cItemHighlight.informLatteIndicator()
+        }
     }
 
     DnD.DropArea {

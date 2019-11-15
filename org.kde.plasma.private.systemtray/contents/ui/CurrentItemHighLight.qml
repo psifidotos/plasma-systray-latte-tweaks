@@ -59,7 +59,17 @@ PlasmaCore.FrameSvgItem {
             }
             return prefix;
         }
-    opacity: target && dialog.visible ? 1 : 0
+    opacity: {
+        if (!dialog.visible || !target) {
+            return 0;
+        }
+
+        if (target == root) {
+            return plasmoid.configuration.internalMainHighlightEnabled ? 1 : 0;
+        }
+
+        return 1;
+    }
     Behavior on opacity {
         NumberAnimation {
             duration: units.longDuration
