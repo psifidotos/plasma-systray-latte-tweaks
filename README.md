@@ -1,6 +1,6 @@
 # Plasma SysTray Tweaks for Latte
 
-Plasma systray is too important too be forked and maintained and this is why I am not taking up this task. On the other hand there is no real reason to present some Latte specific optimisations. All the changes and improvements introduced are only in qml side and as such it might be easier to maintain when plasma system tray evolves between different plasma versions. The reasons that these tweaks were needed are the following:
+Plasma systray is too important to be forked and maintained and this is why I am not taking up this task. On the other hand there is no real reason to not present some Latte specific optimisations. All the changes and improvements introduced are only in qml side and as such it might be easier to maintain when plasma system tray evolves between different plasma versions. The reasons that these tweaks were needed are the following:
 
 * Plasma systray is not using the Latte AutoColoring introduced with v0.9 and as such all applets in the systray are painted with no exceptions. With these tweaks the user can now choose which applets/tasks will be auto-colored in the systray or not; by default all applets are auto-colored
 * As a gift, an icons spacing option is included that can be accessed from systray setttings -> Appearance tab
