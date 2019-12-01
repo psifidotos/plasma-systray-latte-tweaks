@@ -31,7 +31,7 @@ PlasmaCore.ToolTipArea {
 
     property bool vertical: plasmoid.formFactor === PlasmaCore.Types.Vertical
     implicitWidth: !vertical ? length : units.iconSizes.smallMedium
-    implicitHeight: vertical ? legnth : units.iconSizes.smallMedium
+    implicitHeight: vertical ? length : units.iconSizes.smallMedium
     visible: root.hiddenLayout.children.length > 0
 
     subText: root.expanded ? i18n("Close popup") : i18n("Show hidden icons")
@@ -56,7 +56,7 @@ PlasmaCore.ToolTipArea {
             width: units.iconSizes.smallMedium
             height: width
 
-            transformOrigin: horizontal ? Item.Right : Item.Bottom
+            transformOrigin: !vertical ? Item.Right : Item.Bottom
 
             rotation: root.expanded ? 180 : 0
             Behavior on rotation {
