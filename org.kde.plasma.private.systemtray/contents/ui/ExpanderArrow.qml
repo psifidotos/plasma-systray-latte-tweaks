@@ -56,7 +56,7 @@ PlasmaCore.ToolTipArea {
             width: units.iconSizes.smallMedium
             height: width
 
-            transformOrigin: !vertical ? Item.Right : Item.Bottom
+            transformOrigin: Item.Center
 
             rotation: root.expanded ? 180 : 0
             Behavior on rotation {
