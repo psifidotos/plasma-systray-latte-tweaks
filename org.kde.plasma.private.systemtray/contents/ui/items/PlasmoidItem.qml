@@ -19,7 +19,6 @@
 
 import QtQuick 2.1
 import org.kde.plasma.core 2.0 as PlasmaCore
-import org.kde.plasma.components 2.0 as PlasmaComponents
 
 AbstractItem {
     id: plasmoidContainer
@@ -67,6 +66,8 @@ AbstractItem {
     }
     Connections {
         target: applet
+        onActivated: plasmoidContainer.activated()
+
         onExpandedChanged: {
             if (expanded) {
                 var oldApplet = root.activeApplet;
@@ -75,6 +76,7 @@ AbstractItem {
                     oldApplet.expanded = false;
                 }
                 dialog.visible = true;
+                plasmoidContainer.activated()
 
             } else if (root.activeApplet === applet) {
                 if (!applet.parent.hidden) {

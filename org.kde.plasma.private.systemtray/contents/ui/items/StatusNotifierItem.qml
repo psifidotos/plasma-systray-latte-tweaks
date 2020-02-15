@@ -19,7 +19,6 @@
 
 import QtQuick 2.1
 import org.kde.plasma.core 2.0 as PlasmaCore
-import org.kde.plasma.components 2.0 as PlasmaComponents
 
 AbstractItem {
     id: taskIcon
@@ -48,7 +47,18 @@ AbstractItem {
 
     PlasmaCore.IconItem {
         id: iconItem
-        source: Icon ? Icon : IconName
+        source: {
+            if (taskIcon.status === PlasmaCore.Types.NeedsAttentionStatus) {
+                if (AttentionIcon) {
+                    return AttentionIcon
+                }
+                if (AttentionIconName) {
+                    return AttentionIconName
+                }
+            }
+            return Icon ? Icon : IconName
+        }
+
         width: Math.min(parent.width, parent.height)
         height: width
         active: taskIcon.containsMouse
@@ -80,6 +90,7 @@ AbstractItem {
                     openContextMenu(pos);
                 }
             });
+            taskIcon.activated()
             break;
         }
         case Qt.RightButton:
@@ -93,6 +104,7 @@ AbstractItem {
 
             operation.y = pos.y;
             service.startOperationCall(operation);
+            taskIcon.activated()
             break;
         }
     }

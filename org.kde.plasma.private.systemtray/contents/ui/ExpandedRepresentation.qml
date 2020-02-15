@@ -17,128 +17,127 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import QtQuick 2.1
-import QtQuick.Layouts 1.1
+import QtQuick 2.12
+import QtQuick.Layouts 1.12
+
 import org.kde.plasma.core 2.0 as PlasmaCore
-import org.kde.plasma.components 2.0 as PlasmaComponents
+import org.kde.plasma.components 3.0 as PlasmaComponents
 import org.kde.plasma.extras 2.0 as PlasmaExtras
 
-Item {
+ColumnLayout {
     id: expandedRepresentation
-
     //set width/height to avoid an useless Dialog resize
     width: Layout.minimumWidth
     height: Layout.minimumHeight
     Layout.minimumWidth: units.gridUnit * 24
     Layout.minimumHeight: units.gridUnit * 21
     Layout.preferredWidth: Layout.minimumWidth
-    Layout.preferredHeight: Layout.minimumHeight * 1.5
+    Layout.preferredHeight: Layout.minimumHeight
+    Layout.maximumWidth: Layout.minimumWidth
+    Layout.maximumHeight: Layout.minimumHeight
+    spacing: 0 // avoid gap between title and content
 
     property alias activeApplet: container.activeApplet
     property alias hiddenLayout: hiddenItemsView.layout
 
-    PlasmaComponents.ToolButton {
-        id: pinButton
-        anchors.right: parent.right
-        width: Math.round(units.gridUnit * 1.25)
-        height: width
-        checkable: true
-        checked: plasmoid.configuration.pin
-        onCheckedChanged: plasmoid.configuration.pin = checked
-        iconSource: "window-pin"
-        z: 2
-        tooltip: i18n("Keep Open")
-    }
+    RowLayout {
 
-    PlasmaExtras.Heading {
-        id: heading
-        level: 1
-
-        anchors {
-            left: parent.left
-            top: parent.top
-            right: parent.right
-            topMargin: hiddenItemsView.visible ? units.smallSpacing : 0
-            leftMargin: {
+        PlasmaExtras.Heading {
+            id: heading
+            Layout.fillWidth: true
+            level: 1
+            Layout.leftMargin: {
                 //Menu mode
-                if (!activeApplet && hiddenItemsView.visible) {
+                if (!activeApplet && hiddenItemsView.visible && !LayoutMirroring.enabled) {
                     return units.smallSpacing;
 
                 //applet open, sidebar
-                } else if (activeApplet && hiddenItemsView.visible) {
-                    return hiddenItemsView.iconColumnWidth + units.largeSpacing;
+                } else if (activeApplet && hiddenItemsView.visible && !LayoutMirroring.enabled) {
+                    return hiddenItemsView.width + units.largeSpacing;
 
                 //applet open, no sidebar
                 } else {
                     return 0;
                 }
             }
-        }
+            Layout.rightMargin: {
+                //Menu mode
+                if (!activeApplet && hiddenItemsView.visible && LayoutMirroring.enabled) {
+                    return units.smallSpacing;
 
-        visible: activeApplet
-        text: activeApplet ? activeApplet.title : ""
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                if (activeApplet) {
-                    activeApplet.expanded = false;
-                    dialog.visible = true;
+                //applet open, sidebar
+                } else if (activeApplet && hiddenItemsView.visible && LayoutMirroring.enabled) {
+                    return hiddenItemsView.width + units.largeSpacing;
+
+                //applet open, no sidebar
+                } else {
+                    return 0;
+                }
+            }
+
+            visible: activeApplet
+            text: activeApplet ? activeApplet.title : ""
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    if (activeApplet) {
+                        activeApplet.expanded = false;
+                        dialog.visible = true;
+                    }
                 }
             }
         }
-    }
-    PlasmaExtras.Heading {
-        id: noAppletHeading
-        level: 1
-        anchors {
-            left: parent.left
-            top: parent.top
-            right: parent.right
-            topMargin: hiddenItemsView.visible ? units.smallSpacing : 0
-            leftMargin: units.smallSpacing
-        }
-        text: i18n("Status and Notifications")
-        visible: !heading.visible
-    }
 
-    PlasmaCore.SvgItem {
-        anchors {
-            left: parent.left
-            leftMargin: hiddenLayout.width
-            top: parent.top
-            bottom: parent.bottom
-            margins: -units.gridUnit
+        PlasmaExtras.Heading {
+            id: noAppletHeading
+            visible: !activeApplet
+            Layout.fillWidth: true
+            level: 1
+            text: i18n("Status and Notifications")
         }
 
-        visible: hiddenItemsView.visible && activeApplet
-        width: lineSvg.elementSize("vertical-line").width
-
-        elementId: "vertical-line"
-
-        svg: PlasmaCore.Svg {
-            id: lineSvg;
-            imagePath: "widgets/line"
+        PlasmaComponents.ToolButton {
+            id: pinButton
+            Layout.preferredHeight: Math.round(units.gridUnit * 1.25)
+            Layout.preferredWidth: Layout.preferredHeight
+            checkable: true
+            checked: plasmoid.configuration.pin
+            onToggled: plasmoid.configuration.pin = checked
+            icon.name: "window-pin"
+            PlasmaComponents.ToolTip {
+                text: i18n("Keep Open")
+            }
         }
     }
 
-    HiddenItemsView {
-        id: hiddenItemsView
-        anchors {
-            left: parent.left
-            top: noAppletHeading.bottom
-            topMargin: units.smallSpacing
-            bottom: parent.bottom
-        }
-    }
+    RowLayout {
+        spacing: 0 // must be 0 so that the separator is as close to the indicator as possible
 
-    PlasmoidPopupsContainer {
-        id: container
-        anchors {
-            left: parent.left
-            right: parent.right
-            top: heading.bottom
-            bottom: parent.bottom
-            leftMargin: hiddenItemsView.visible ? hiddenItemsView.iconColumnWidth + units.largeSpacing : 0
+        HiddenItemsView {
+            id: hiddenItemsView
+            Layout.fillWidth: !activeApplet
+            Layout.preferredWidth: activeApplet ? iconColumnWidth : -1
+            Layout.fillHeight: true
+        }
+
+        PlasmaCore.SvgItem {
+            visible: hiddenItemsView.visible && activeApplet
+            Layout.fillHeight: true
+            Layout.preferredWidth: lineSvg.elementSize("vertical-line").width
+            elementId: "vertical-line"
+            svg: PlasmaCore.Svg {
+                id: lineSvg;
+                imagePath: "widgets/line"
+            }
+        }
+
+        PlasmoidPopupsContainer {
+            id: container
+            visible: activeApplet
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.leftMargin: hiddenItemsView.visible && activeApplet && !LayoutMirroring.enabled ? units.largeSpacing : 0
+            Layout.rightMargin: hiddenItemsView.visible && activeApplet && LayoutMirroring.enabled ? units.largeSpacing : 0
         }
     }
 }
