@@ -41,5 +41,5 @@ Plasma systray is too important to be forked and maintained and this is why I am
 
 # Maintenance
 
-* The current code is using Plasma v5.16 and I will try to update it when new plasma versions are released with changes in their QML code. That means of course that any improvements in plasma qml code will not be available if you dont remove the **tweaks** or update with newer versions of tweaked files. So use these with care and in the case that your systray breaks just remove the **tweaks**. 
+* The current code is using Plasma v5.18 and I will try to update it when new plasma versions are released with changes in their QML code. That means of course that any improvements in plasma qml code will not be available if you dont remove the **tweaks** or update with newer versions of tweaked files. So use these with care and in the case that your systray breaks just remove the **tweaks**. 
 * If someone wants to check out what the tweaks are changing for safety reasons etc, the [tweaks](https://github.com/psifidotos/plasma-systray-latte-tweaks/commits/tweaks) branch holds all the relevant commits.
