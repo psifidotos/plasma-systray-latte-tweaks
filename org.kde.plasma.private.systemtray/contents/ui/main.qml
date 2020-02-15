@@ -119,6 +119,21 @@ MouseArea {
         moveItemAt(item, container, i)
     }
 
+    //! Latte Connection
+    property QtObject latteBridge: null
+    readonly property bool inLatte: latteBridge !== null
+    readonly property bool internalMainHighlightEnabled: plasmoid.configuration.internalMainHighlightEnabled
+
+    onLatteBridgeChanged: {
+        if (latteBridge) {
+            latteBridge.actions.setProperty(plasmoid.id, "latteSideColoringEnabled", false);
+            cItemHighlight.informLatteIndicator();
+        }
+    }
+
+    onInternalMainHighlightEnabledChanged: cItemHighlight.informLatteIndicator()
+    //!
+
     function updateItemVisibility(item) {
         switch (item.effectiveStatus) {
         case PlasmaCore.Types.HiddenStatus:
@@ -258,7 +273,8 @@ MouseArea {
             id: tasksRepeater
             model: statusNotifierModel
 
-            delegate: StatusNotifierItem {}
+            delegate: StatusNotifierItem {
+            }
         }
         //NOTE: this exists mostly for not causing reference errors
         property QtObject marginHints: QtObject {
@@ -270,9 +286,29 @@ MouseArea {
     }
 
     CurrentItemHighLight {
+        id: cItemHighlight
         visualParent: tasksRow
         target: root.activeApplet && root.activeApplet.parent.parent == tasksRow ? root.activeApplet.parent : root
         location: plasmoid.location
+
+        function informLatteIndicator() {
+            if (!inLatte) {
+                return;
+            }
+
+            if (root.internalMainHighlightEnabled || target !== root) {
+                latteBridge.actions.setProperty(plasmoid.id, "activeIndicatorEnabled", false);
+            } else if (target) {
+                latteBridge.actions.setProperty(plasmoid.id, "activeIndicatorEnabled", true);
+            }
+        }
+
+        onTargetChanged: cItemHighlight.informLatteIndicator()
+
+        Connections {
+            target: root
+            onInLatteChanged: cItemHighlight.informLatteIndicator()
+        }
     }
 
     DnD.DropArea {
@@ -318,7 +354,7 @@ MouseArea {
     //Main Layout
     Flow {
         id: tasksRow
-        spacing: 0
+        spacing: plasmoid.configuration.iconsSpacing
         height: parent.height - (vertical && expander.visible ? expander.height : 0)
         width: parent.width - (vertical || !expander.visible ? 0 : expander.width)
         property string skipItems

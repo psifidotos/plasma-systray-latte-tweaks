@@ -44,6 +44,14 @@ Item {
 
     property Item internalSystray
 
+    //! Latte Connection
+    property QtObject latteBridge: null
+    readonly property bool inLatte: latteBridge !== null
+
+    onLatteBridgeChanged: checkAndUpdateInternalLatteBridge();
+    onInternalSystrayChanged: checkAndUpdateInternalLatteBridge();
+    //!
+
     Component.onCompleted: {
         root.internalSystray = plasmoid.nativeInterface.internalSystray;
 
@@ -60,6 +68,32 @@ Item {
             root.internalSystray = plasmoid.nativeInterface.internalSystray;
             root.internalSystray.parent = root;
             root.internalSystray.anchors.fill = root;
+
+            checkAndUpdateInternalLatteBridge();
+        }
+    }
+
+    function checkAndUpdateInternalLatteBridge() {
+        if (!latteBridge) {
+            return;
+        }
+
+        var level0 = internalSystray.children;
+
+        for(var i=0; i<level0.length; ++i){
+            if (level0[i].hasOwnProperty("latteBridge")) {
+                level0[i].latteBridge = root.latteBridge;
+                break;
+            }
+
+            var level1 = level0[i].children;
+            for(var j=0; j<level1.length; ++j){
+                if (level1[j].hasOwnProperty("latteBridge")) {
+                    level1[j].latteBridge = root.latteBridge;
+                    break;
+                }
+            }
         }
     }
 }
+
