@@ -11,12 +11,12 @@ Plasma systray is too important to be forked and maintained and this is why I am
 </p>
 
 <p align="center">
-<img src="https://i.imgur.com/AsiXvvZ.png" width="580"><br/>
+<img src="https://i.imgur.com/rVKoCM8.png" width="580"><br/>
 <i>Auto-Color option</i>
 </p>
 
 <p align="center">
-<img src="https://i.imgur.com/KPcrTNy.png" width="370"><br/>
+<img src="https://i.imgur.com/F6F8wBJ.png" width="580"><br/>
 <i>icons margin in Apperance tab</i>
 </p>
 
