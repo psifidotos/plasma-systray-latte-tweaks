@@ -31,8 +31,11 @@ Item {
     implicitWidth: pageColumn.implicitWidth
     implicitHeight: pageColumn.implicitHeight
 
+    property alias cfg_iconSize: appearancePage.iconSizeCurrentValue
     property alias cfg_iconsSpacing: iconsSpacing.value
     property alias cfg_internalMainHighlightEnabled: internalHighlightChk.checked
+
+    property int iconSizeCurrentValue: 1
 
     Kirigami.FormLayout {
         id: pageColumn
@@ -41,10 +44,20 @@ Item {
             right: parent.right
         }
 
-        QtControls.CheckBox {
-            id: internalHighlightChk
-            text: i18n("Internal highlight for main popup window is enabled")
-            Kirigami.FormData.label: i18n("Highlight:")
+        QtControls.ComboBox {
+            id: iconSizeCmb
+
+            model: [i18n("Small"),
+                    i18n("SmallMedium"),
+                    i18n("Medium"),
+                    i18n("Large"),
+                    i18n("Huge"),
+                    i18n("Enormous")]
+
+            Kirigami.FormData.label: i18n("Size:")
+
+            currentIndex: plasmoid.configuration.iconSize - 1
+            onCurrentIndexChanged: appearancePage.iconSizeCurrentValue = currentIndex + 1
         }
 
         QtControls.SpinBox{
@@ -54,7 +67,17 @@ Item {
 
             suffix: i18nc("pixels","px.")
 
-            Kirigami.FormData.label: i18n("Icons Spacing:")
+            Kirigami.FormData.label: i18n("Spacing:")
+        }
+
+        QtControls.Label {
+            text: " "
+        }
+
+        QtControls.CheckBox {
+            id: internalHighlightChk
+            text: i18n("Internal highlight for main popup window is enabled")
+            Kirigami.FormData.label: i18n("Highlight:")
         }
     }
 }
