@@ -120,7 +120,7 @@ MouseArea {
     }
 
     //! Latte Connection
-    property QtObject latteBridge: null
+    property Item latteBridge: null
     readonly property bool inLatte: latteBridge !== null
     readonly property bool internalMainHighlightEnabled: plasmoid.configuration.internalMainHighlightEnabled
 
