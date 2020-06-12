@@ -65,6 +65,21 @@ MouseArea {
         }
     }
 
+    //! Latte Connection
+    property QtObject latteBridge: null
+    readonly property bool inLatte: latteBridge !== null
+    readonly property bool internalMainHighlightEnabled: plasmoid.configuration.internalMainHighlightEnabled
+
+    onLatteBridgeChanged: {
+        if (latteBridge) {
+            latteBridge.actions.setProperty(plasmoid.id, "latteSideColoringEnabled", false);
+            cItemHighlight.informLatteIndicator();
+        }
+    }
+
+    onInternalMainHighlightEnabledChanged: cItemHighlight.informLatteIndicator()
+    //!
+
     onWheel: {
         // Don't propagate unhandled wheel events
         wheel.accepted = true;
@@ -89,15 +104,35 @@ MouseArea {
         target: plasmoid.configuration
 
         function onExtraItemsChanged() {
-            plasmoid.nativeInterface.allowedPlasmoids = plasmoid.configuration.extraItems
+            plasmoid.nativeInterface.allowedPlasmoids = plasmoid.configuration.extraItems;
         }
     }
 
     CurrentItemHighLight {
+        id: cItemHighlight
         readonly property bool visibleAppletActivated: root.activeApplet && root.activeApplet.parent && root.activeApplet.parent.inVisibleLayout
         parent: visibleAppletActivated ? root.activeApplet.parent : root
         target: visibleAppletActivated ? root.activeApplet.parent : root
         location: plasmoid.location
+
+        function informLatteIndicator() {
+            if (!inLatte) {
+                return;
+            }
+
+            if (root.internalMainHighlightEnabled || target !== root) {
+                latteBridge.actions.setProperty(plasmoid.id, "activeIndicatorEnabled", false);
+            } else if (target) {
+                latteBridge.actions.setProperty(plasmoid.id, "activeIndicatorEnabled", true);
+            }
+        }
+
+        onTargetChanged: cItemHighlight.informLatteIndicator()
+
+        Connections {
+            target: root
+            onInLatteChanged: cItemHighlight.informLatteIndicator()
+        }
     }
 
     DnD.DropArea {
@@ -143,11 +178,9 @@ MouseArea {
     //Main Layout
     GridLayout {
         id: mainLayout
-
-        rowSpacing: 0
-        columnSpacing: 0
+        rowSpacing: plasmoid.configuration.iconsSpacing
+        columnSpacing: plasmoid.configuration.iconsSpacing
         anchors.fill: parent
-
         flow: vertical ? GridLayout.TopToBottom : GridLayout.LeftToRight
 
         GridView {
