@@ -178,8 +178,8 @@ MouseArea {
     //Main Layout
     GridLayout {
         id: mainLayout
-        rowSpacing: plasmoid.configuration.iconsSpacing
-        columnSpacing: plasmoid.configuration.iconsSpacing
+        rowSpacing: 0
+        columnSpacing: 0
         anchors.fill: parent
         flow: vertical ? GridLayout.TopToBottom : GridLayout.LeftToRight
 
@@ -190,8 +190,8 @@ MouseArea {
             interactive: false //disable features we don't need
             flow: vertical ? GridView.LeftToRight : GridView.TopToBottom
 
-            cellHeight: Math.min(root.itemSize + units.smallSpacing, root.height)
-            cellWidth: Math.min(root.itemSize + units.smallSpacing, root.width)
+            cellHeight: Math.min(root.itemSize + plasmoid.configuration.iconsSpacing, root.height)
+            cellWidth: Math.min(root.itemSize + plasmoid.configuration.iconsSpacing, root.width)
 
             readonly property int columns: !vertical ? Math.ceil(count / rows)
                                            : Math.max(1, Math.floor(root.width / cellWidth))

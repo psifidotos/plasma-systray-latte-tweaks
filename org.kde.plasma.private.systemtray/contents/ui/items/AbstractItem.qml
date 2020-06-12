@@ -35,6 +35,7 @@ PlasmaCore.ToolTipArea {
     property string itemId
     property alias text: label.text
     property alias iconContainer: iconContainer
+    property bool labelVisible: inHiddenLayout && !root.activeApplet
     property int /*PlasmaCore.Types.ItemStatus*/ status: model.status || PlasmaCore.Types.UnknownStatus
     property int /*PlasmaCore.Types.ItemStatus*/ effectiveStatus: model.effectiveStatus || PlasmaCore.Types.UnknownStatus
     readonly property bool inHiddenLayout: effectiveStatus === PlasmaCore.Types.PassiveStatus
@@ -156,7 +157,7 @@ PlasmaCore.ToolTipArea {
         id: colorizerLoader
         anchors.fill: parent
         active: root.inLatte
-               && !hidden
+               && !abstractItem.inHiddenLayout
                && !labelVisible
                && itemId.length > 0
                && (plasmoid.configuration.blockedAutoColorItems.indexOf(itemId) < 0)
@@ -165,7 +166,7 @@ PlasmaCore.ToolTipArea {
 
         sourceComponent: ColorOverlay {
             anchors.fill: parent
-            source: iconItem
+            source: iconContainer
             color: root.inLatte ? latteBridge.palette.textColor : "transparent"
         }
     }
