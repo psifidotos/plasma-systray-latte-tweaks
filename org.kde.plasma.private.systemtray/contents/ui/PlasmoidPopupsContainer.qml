@@ -22,6 +22,8 @@ import QtQuick.Layouts 1.1
 import QtQuick.Controls 1.4
 //needed for units
 import org.kde.plasma.core 2.0 as PlasmaCore
+import org.kde.plasma.components 3.0 as PlasmaComponents3
+import org.kde.plasma.extras 2.0 as PlasmaExtras
 
 StackView {
     id: mainStack
@@ -33,7 +35,18 @@ StackView {
 
     property Item activeApplet
 
+    /* Heading */
+    property bool appletHasHeading: false
+    property bool mergeHeadings: appletHasHeading && activeApplet.fullRepresentationItem.header.visible
+    property int headingHeight: mergeHeadings ? activeApplet.fullRepresentationItem.header.height : 0
+    /* Footer */
+    property bool appletHasFooter: false
+    property bool mergeFooters: appletHasFooter && activeApplet.fullRepresentationItem.footer.visible
+    property int footerHeight: mergeFooters ? activeApplet.fullRepresentationItem.footer.height : 0
+
     onActiveAppletChanged: {
+        mainStack.appletHasHeading = false
+        mainStack.appletHasFooter = false
         if (activeApplet != null) {
             //reset any potential anchor
             activeApplet.fullRepresentationItem.anchors.left = undefined;
@@ -43,6 +56,16 @@ StackView {
             activeApplet.fullRepresentationItem.anchors.centerIn = undefined;
             activeApplet.fullRepresentationItem.anchors.fill = undefined;
 
+            if (activeApplet.fullRepresentationItem instanceof PlasmaComponents3.Page) {
+                if (activeApplet.fullRepresentationItem.header && activeApplet.fullRepresentationItem.header instanceof PlasmaExtras.PlasmoidHeading) {
+                    mainStack.appletHasHeading = true
+                    activeApplet.fullRepresentationItem.header.background.visible = false
+                }
+                if (activeApplet.fullRepresentationItem.footer && activeApplet.fullRepresentationItem.footer instanceof PlasmaExtras.PlasmoidHeading) {
+                    mainStack.appletHasFooter = true
+                    activeApplet.fullRepresentationItem.footer.background.visible = false
+                }
+            }
 
             mainStack.replace({item: activeApplet.fullRepresentationItem, immediate: !dialog.visible, properties: {focus: true}});
         } else {

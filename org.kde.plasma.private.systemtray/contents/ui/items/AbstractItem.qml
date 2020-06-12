@@ -1,5 +1,6 @@
 /*
  *   Copyright 2016 Marco Martin <mart@kde.org>
+ *   Copyright 2020 Konrad Materka <materka@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU Library General Public License as
@@ -24,47 +25,31 @@ import org.kde.plasma.components 2.0 as PlasmaComponents
 PlasmaCore.ToolTipArea {
     id: abstractItem
 
-    height: effectiveItemSize + marginHints.top + marginHints.bottom
-    width: labelVisible ? parent.width : effectiveItemSize + marginHints.left + marginHints.right
+    height: inVisibleLayout ? visibleLayout.cellHeight : hiddenLayout.iconItemHeight
+    width: inVisibleLayout ? visibleLayout.cellWidth : hiddenLayout.width
 
-    property real effectiveItemSize: hidden ? root.hiddenItemSize : root.itemSize
+    property var model: itemModel
+
     property string itemId
-    property string category
     property alias text: label.text
-    property bool hidden: parent.objectName == "hiddenTasksColumn"
-    property QtObject marginHints: parent.marginHints
-    property bool labelVisible: abstractItem.hidden && !root.activeApplet
-    property Item iconItem
-    //PlasmaCore.Types.ItemStatus
-    property int status
-    property QtObject model
+    property alias iconContainer: iconContainer
+    property int /*PlasmaCore.Types.ItemStatus*/ status: model.status || PlasmaCore.Types.UnknownStatus
+    property int /*PlasmaCore.Types.ItemStatus*/ effectiveStatus: model.effectiveStatus || PlasmaCore.Types.UnknownStatus
+    readonly property bool inHiddenLayout: effectiveStatus === PlasmaCore.Types.PassiveStatus
+    readonly property bool inVisibleLayout: effectiveStatus === PlasmaCore.Types.ActiveStatus
 
     signal clicked(var mouse)
     signal pressed(var mouse)
     signal wheel(var wheel)
     signal contextMenu(var mouse)
 
-    property bool forcedHidden: plasmoid.configuration.hiddenItems.indexOf(itemId) !== -1
-    property bool forcedShown: plasmoid.configuration.showAllItems || plasmoid.configuration.shownItems.indexOf(itemId) !== -1
-
-    readonly property int effectiveStatus: {
-        if (status === PlasmaCore.Types.HiddenStatus) {
-            return PlasmaCore.Types.HiddenStatus
-        } else if (forcedShown || (!forcedHidden && status !== PlasmaCore.Types.PassiveStatus)) {
-            return PlasmaCore.Types.ActiveStatus
-        } else {
-            return PlasmaCore.Types.PassiveStatus
-        }
-    }
-
-    /* subclasses need to assign to this tiiltip properties
+    /* subclasses need to assign to this tooltip properties
     mainText:
     subText:
-    icon: 
     */
 
     location: {
-        if (abstractItem.parent && abstractItem.parent.objectName === "hiddenTasksColumn") {
+        if (inHiddenLayout) {
             if (LayoutMirroring.enabled && plasmoid.location !== PlasmaCore.Types.RightEdge) {
                 return PlasmaCore.Types.LeftEdge;
             } else if (plasmoid.location !== PlasmaCore.Types.LeftEdge) {
@@ -77,25 +62,16 @@ PlasmaCore.ToolTipArea {
 
 //BEGIN CONNECTIONS
 
-    property int creationId // used for item order tie breaking
-    onEffectiveStatusChanged: updateItemVisibility(abstractItem)
-    onCategoryChanged: updateItemVisibility(abstractItem)
-    onTextChanged: updateItemVisibility(abstractItem)
-    Component.onCompleted: {
-        creationId = root.creationIdCounter++
-        updateItemVisibility(abstractItem)
-    }
-
     onContainsMouseChanged: {
-        if (hidden && containsMouse) {
-            root.hiddenLayout.hoveredItem = abstractItem
+        if (inHiddenLayout && containsMouse) {
+            root.hiddenLayout.currentIndex = index
         }
     }
 
 //END CONNECTIONS
 
     PulseAnimation {
-        targetItem: iconItem
+        targetItem: iconContainer
         running: (abstractItem.status === PlasmaCore.Types.NeedsAttentionStatus ||
             abstractItem.status === PlasmaCore.Types.RequiresAttentionStatus ) &&
             units.longDuration > 0
@@ -110,7 +86,7 @@ PlasmaCore.ToolTipArea {
         loops: 1
 
         ScaleAnimator {
-            target: iconItem
+            target: iconContainer
             from: 1
             to: 0.5
             duration: units.shortDuration
@@ -118,7 +94,7 @@ PlasmaCore.ToolTipArea {
         }
 
         ScaleAnimator {
-            target: iconItem
+            target: iconContainer
             from: 0.5
             to: 1
             duration: units.shortDuration
@@ -147,19 +123,27 @@ PlasmaCore.ToolTipArea {
         }
     }
 
-    PlasmaComponents.Label {
-        id: label
-        anchors {
-            left: parent.left
-            leftMargin: iconItem ? iconItem.width + units.smallSpacing : 0
-            verticalCenter: parent.verticalCenter
+    Row {
+        spacing: units.smallSpacing
+        anchors.horizontalCenter: inVisibleLayout ? parent.horizontalCenter : undefined
+        Item {
+            id: iconContainer
+            anchors.verticalCenter: parent.verticalCenter
+            width: Math.min(abstractItem.width, abstractItem.height)
+            height: width
+            property alias inHiddenLayout: abstractItem.inHiddenLayout
+            property alias inVisibleLayout: abstractItem.inVisibleLayout
         }
-        opacity: labelVisible ? 1 : 0
-        visible: abstractItem.hidden
-        Behavior on opacity {
-            NumberAnimation {
-                duration: units.longDuration
-                easing.type: Easing.InOutQuad
+        PlasmaComponents.Label {
+            id: label
+            anchors.verticalCenter: parent.verticalCenter
+            visible: abstractItem.inHiddenLayout && !root.activeApplet
+            opacity: visible ? 1 : 0
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: units.longDuration
+                    easing.type: Easing.InOutQuad
+                }
             }
         }
     }

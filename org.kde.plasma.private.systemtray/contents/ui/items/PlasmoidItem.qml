@@ -23,18 +23,14 @@ import org.kde.plasma.core 2.0 as PlasmaCore
 AbstractItem {
     id: plasmoidContainer
 
-    property Item applet
-    iconItem: applet
+    property Item applet: model.applet || null
     text: applet ? applet.title : ""
 
     itemId: applet ? applet.pluginName : ""
-    category: applet ? plasmoid.nativeInterface.plasmoidCategory(applet) : "UnknownCategory"
     mainText: applet ? applet.toolTipMainText : ""
     subText: applet ? applet.toolTipSubText : ""
-    icon: applet ? applet.icon : ""
     mainItem: applet && applet.toolTipItem ? applet.toolTipItem : null
     textFormat: applet ? applet.toolTipTextFormat : ""
-    status: applet ? applet.status : PlasmaCore.Types.UnknownStatus
     active: root.activeApplet !== applet
 
     onClicked: {
@@ -49,42 +45,63 @@ AbstractItem {
     }
     onContextMenu: {
         if (applet) {
-            plasmoid.nativeInterface.showPlasmoidMenu(applet, 0, plasmoidContainer.hidden ? applet.height : 0);
+            plasmoid.nativeInterface.showPlasmoidMenu(applet, 0, plasmoidContainer.inHiddenLayout ? applet.height : 0);
         }
     }
 
-    onHeightChanged: {
-        if (applet) {
-            applet.width = height
+    //This is to make preloading effective, minimizes the scene changes
+    function preloadFullRepresentationItem(fullRepresentationItem) {
+        if (fullRepresentationItem && fullRepresentationItem.parent === null) {
+            fullRepresentationItem.width = expandedRepresentation.width
+            fullRepresentationItem.width = expandedRepresentation.height
+            fullRepresentationItem.parent = preloadedStorage;
         }
     }
+
     onAppletChanged: {
-        if (!applet) {
-            plasmoidContainer.destroy();
-            print("applet destroyed")
+        if (applet) {
+            applet.parent = plasmoidContainer.iconContainer
+            applet.anchors.fill = applet.parent
+            applet.visible = true
+
+            preloadFullRepresentationItem(applet.fullRepresentationItem)
         }
     }
+
     Connections {
         target: applet
-        onActivated: plasmoidContainer.activated()
+        function onActivated() {
+            plasmoidContainer.activated()
+        }
 
-        onExpandedChanged: {
+        function onExpandedChanged(expanded) {
             if (expanded) {
                 var oldApplet = root.activeApplet;
                 root.activeApplet = applet;
-                if (oldApplet) {
+                if (oldApplet && oldApplet !== applet) {
                     oldApplet.expanded = false;
                 }
                 dialog.visible = true;
                 plasmoidContainer.activated()
 
             } else if (root.activeApplet === applet) {
-                if (!applet.parent.hidden) {
+                if (!inHiddenLayout) {
                     dialog.visible = false;
                 }
                 //if not expanded we don't have an active applet anymore
                 root.activeApplet = null;
             }
         }
+
+        function onFullRepresentationItemChanged(fullRepresentationItem) {
+            preloadFullRepresentationItem(fullRepresentationItem)
+        }
+    }
+
+    Binding {
+        property: "hideOnWindowDeactivate"
+        value: !plasmoid.configuration.pin
+        target: plasmoidContainer.applet
+        when: null !== plasmoidContainer.applet
     }
 }

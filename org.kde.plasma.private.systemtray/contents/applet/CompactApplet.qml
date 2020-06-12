@@ -28,10 +28,9 @@ PlasmaCore.ToolTipArea {
     objectName: "org.kde.desktop-CompactApplet"
     anchors.fill: parent
 
-    icon: plasmoid.icon
     mainText: plasmoid.toolTipMainText
     subText: plasmoid.toolTipSubText
-    location: if (plasmoid.parent && plasmoid.parent.parent.objectName === "hiddenTasksColumn" && plasmoid.location !== PlasmaCore.Types.LeftEdge) {
+    location: if (plasmoid.parent && plasmoid.parent.inHiddenLayout && plasmoid.location !== PlasmaCore.Types.LeftEdge) {
                 return PlasmaCore.Types.RightEdge;
               } else {
                 return plasmoid.location;
@@ -45,7 +44,9 @@ PlasmaCore.ToolTipArea {
 
     Connections {
         target: plasmoid
-        onContextualActionsAboutToShow: appletRoot.hideToolTip()
+        function onContextualActionsAboutToShow() {
+            appletRoot.hideToolTip()
+        }
     }
 
     Layout.minimumWidth: {

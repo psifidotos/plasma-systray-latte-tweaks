@@ -24,9 +24,7 @@ import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.components 3.0 as PlasmaComponents
 import org.kde.plasma.extras 2.0 as PlasmaExtras
 
-ColumnLayout {
-    id: expandedRepresentation
-    //set width/height to avoid an useless Dialog resize
+Item {
     width: Layout.minimumWidth
     height: Layout.minimumHeight
     Layout.minimumWidth: units.gridUnit * 24
@@ -35,109 +33,141 @@ ColumnLayout {
     Layout.preferredHeight: Layout.minimumHeight
     Layout.maximumWidth: Layout.minimumWidth
     Layout.maximumHeight: Layout.minimumHeight
-    spacing: 0 // avoid gap between title and content
 
     property alias activeApplet: container.activeApplet
     property alias hiddenLayout: hiddenItemsView.layout
 
-    RowLayout {
+    PlasmaExtras.PlasmoidHeading {
+        id: plasmoidHeading
+        anchors {
+            top: parent.top
+            left: parent.left
+            right: parent.right
+        }
+        height: trayHeading.height + bottomPadding + container.headingHeight
+    }
 
-        PlasmaExtras.Heading {
-            id: heading
-            Layout.fillWidth: true
-            level: 1
-            Layout.leftMargin: {
-                //Menu mode
-                if (!activeApplet && hiddenItemsView.visible && !LayoutMirroring.enabled) {
-                    return units.smallSpacing;
+    PlasmaExtras.PlasmoidHeading {
+        id: plasmoidFooter
+        location: PlasmaExtras.PlasmoidHeading.Location.Footer
+        anchors {
+            bottom: parent.bottom
+            left: parent.left
+            right: parent.right
+        }
+        visible: container.appletHasFooter
+        height: container.footerHeight
+    }
 
-                //applet open, sidebar
-                } else if (activeApplet && hiddenItemsView.visible && !LayoutMirroring.enabled) {
-                    return hiddenItemsView.width + units.largeSpacing;
+    ColumnLayout {
+        id: expandedRepresentation
+        //set width/height to avoid an useless Dialog resize
+        anchors.fill: parent
+        spacing: plasmoidHeading.bottomPadding
 
-                //applet open, no sidebar
-                } else {
-                    return 0;
+        RowLayout {
+            id: trayHeading
+
+            PlasmaExtras.Heading {
+                id: heading
+                Layout.fillWidth: true
+                level: 1
+                Layout.leftMargin: {
+                    //Menu mode
+                    if (!activeApplet && hiddenItemsView.visible && !LayoutMirroring.enabled) {
+                        return units.smallSpacing;
+
+                    //applet open, sidebar
+                    } else if (activeApplet && hiddenItemsView.visible && !LayoutMirroring.enabled) {
+                        return hiddenItemsView.width + units.smallSpacing + dialog.margins.left;
+
+                    //applet open, no sidebar
+                    } else {
+                        return units.smallSpacing;
+                    }
                 }
-            }
-            Layout.rightMargin: {
-                //Menu mode
-                if (!activeApplet && hiddenItemsView.visible && LayoutMirroring.enabled) {
-                    return units.smallSpacing;
+                Layout.rightMargin: {
+                    //Menu mode
+                    if (!activeApplet && hiddenItemsView.visible && LayoutMirroring.enabled) {
+                        return units.smallSpacing;
 
-                //applet open, sidebar
-                } else if (activeApplet && hiddenItemsView.visible && LayoutMirroring.enabled) {
-                    return hiddenItemsView.width + units.largeSpacing;
+                    //applet open, sidebar
+                    } else if (activeApplet && hiddenItemsView.visible && LayoutMirroring.enabled) {
+                        return hiddenItemsView.width + units.largeSpacing;
 
-                //applet open, no sidebar
-                } else {
-                    return 0;
+                    //applet open, no sidebar
+                    } else {
+                        return 0;
+                    }
                 }
-            }
 
-            visible: activeApplet
-            text: activeApplet ? activeApplet.title : ""
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    if (activeApplet) {
-                        activeApplet.expanded = false;
-                        dialog.visible = true;
+                visible: activeApplet
+                text: activeApplet ? activeApplet.title : ""
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        if (activeApplet) {
+                            activeApplet.expanded = false;
+                            dialog.visible = true;
+                        }
                     }
                 }
             }
-        }
 
-        PlasmaExtras.Heading {
-            id: noAppletHeading
-            visible: !activeApplet
-            Layout.fillWidth: true
-            level: 1
-            text: i18n("Status and Notifications")
-        }
-
-        PlasmaComponents.ToolButton {
-            id: pinButton
-            Layout.preferredHeight: Math.round(units.gridUnit * 1.25)
-            Layout.preferredWidth: Layout.preferredHeight
-            checkable: true
-            checked: plasmoid.configuration.pin
-            onToggled: plasmoid.configuration.pin = checked
-            icon.name: "window-pin"
-            PlasmaComponents.ToolTip {
-                text: i18n("Keep Open")
+            PlasmaExtras.Heading {
+                id: noAppletHeading
+                visible: !activeApplet
+                Layout.fillWidth: true
+                level: 1
+                text: i18n("Status and Notifications")
             }
-        }
-    }
 
-    RowLayout {
-        spacing: 0 // must be 0 so that the separator is as close to the indicator as possible
-
-        HiddenItemsView {
-            id: hiddenItemsView
-            Layout.fillWidth: !activeApplet
-            Layout.preferredWidth: activeApplet ? iconColumnWidth : -1
-            Layout.fillHeight: true
-        }
-
-        PlasmaCore.SvgItem {
-            visible: hiddenItemsView.visible && activeApplet
-            Layout.fillHeight: true
-            Layout.preferredWidth: lineSvg.elementSize("vertical-line").width
-            elementId: "vertical-line"
-            svg: PlasmaCore.Svg {
-                id: lineSvg;
-                imagePath: "widgets/line"
+            PlasmaComponents.ToolButton {
+                id: pinButton
+                checkable: true
+                checked: plasmoid.configuration.pin
+                onToggled: plasmoid.configuration.pin = checked
+                icon.name: "window-pin"
+                PlasmaComponents.ToolTip {
+                    text: i18n("Keep Open")
+                }
             }
         }
 
-        PlasmoidPopupsContainer {
-            id: container
-            visible: activeApplet
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.leftMargin: hiddenItemsView.visible && activeApplet && !LayoutMirroring.enabled ? units.largeSpacing : 0
-            Layout.rightMargin: hiddenItemsView.visible && activeApplet && LayoutMirroring.enabled ? units.largeSpacing : 0
+        RowLayout {
+            spacing: 0 // must be 0 so that the separator is as close to the indicator as possible
+
+            HiddenItemsView {
+                id: hiddenItemsView
+                Layout.fillWidth: !activeApplet
+                Layout.fillHeight: true
+                Layout.topMargin: container.headingHeight
+            }
+
+            PlasmaCore.SvgItem {
+                visible: hiddenItemsView.visible && activeApplet
+                Layout.fillHeight: true
+                Layout.preferredWidth: lineSvg.elementSize("vertical-line").width
+                Layout.topMargin: container.headingHeight
+                elementId: "vertical-line"
+                svg: PlasmaCore.Svg {
+                    id: lineSvg;
+                    imagePath: "widgets/line"
+                }
+            }
+
+            PlasmoidPopupsContainer {
+                id: container
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                visible: activeApplet
+                // We need to add our own margins on the top and left (when the
+                // hidden items view is visible, at least) so it matches the
+                //  dialog's own margins and content is centered correctly
+                Layout.topMargin: mergeHeadings ? 0 : dialog.margins.top
+                Layout.leftMargin: hiddenItemsView.visible && activeApplet && !LayoutMirroring.enabled ? dialog.margins.left : 0
+                Layout.rightMargin: hiddenItemsView.visible && activeApplet && LayoutMirroring.enabled ? dialog.margins.right : 0
+            }
         }
     }
 }
