@@ -128,13 +128,25 @@ PlasmaCore.ToolTipArea {
     }
 
     Row {
+        id: itemRow
         spacing: units.smallSpacing
         anchors.horizontalCenter: inVisibleLayout ? parent.horizontalCenter : undefined
         Item {
             id: iconContainer
             anchors.verticalCenter: parent.verticalCenter
-            width: Math.min(abstractItem.width, abstractItem.height)
-            height: width
+            width: plasmoid.formFactor === PlasmaCore.Types.Vertical ? abstractItem.width : minIconSize
+            height: plasmoid.formFactor === PlasmaCore.Types.Vertical ? minIconSize : abstractItem.height
+
+            readonly property int minIconSize: {
+                if (inHiddenLayout) {
+                    return plasmoid.formFactor === PlasmaCore.Types.Vertical ? abstractItem.width : abstractItem.height
+                }
+
+                return plasmoid.formFactor === PlasmaCore.Types.Vertical ?
+                                                   abstractItem.width - plasmoid.configuration.iconsSpacing :
+                                                   abstractItem.height - plasmoid.configuration.iconsSpacing;
+            }
+
             property alias inHiddenLayout: abstractItem.inHiddenLayout
             property alias inVisibleLayout: abstractItem.inVisibleLayout
         }
@@ -155,7 +167,7 @@ PlasmaCore.ToolTipArea {
     //!Latte Coloring Approach with Colorizer and BrightnessContrast for hovering effect
     Loader {
         id: colorizerLoader
-        anchors.fill: parent
+        anchors.fill: itemRow
         active: root.inLatte
                && !abstractItem.inHiddenLayout
                && !labelVisible
@@ -173,7 +185,7 @@ PlasmaCore.ToolTipArea {
 
     Loader {
         id: hoveredColorizerLoader
-        anchors.fill: parent
+        anchors.fill: itemRow
         active: colorizerLoader.active
         z:1001
 
