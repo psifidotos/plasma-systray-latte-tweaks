@@ -142,9 +142,7 @@ PlasmaCore.ToolTipArea {
                     return plasmoid.formFactor === PlasmaCore.Types.Vertical ? abstractItem.width : abstractItem.height
                 }
 
-                return plasmoid.formFactor === PlasmaCore.Types.Vertical ?
-                                                   abstractItem.width - plasmoid.configuration.iconsSpacing :
-                                                   abstractItem.height - plasmoid.configuration.iconsSpacing;
+                return root.itemSize;
             }
 
             property alias inHiddenLayout: abstractItem.inHiddenLayout

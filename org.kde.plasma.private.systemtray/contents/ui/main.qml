@@ -51,6 +51,7 @@ MouseArea {
             return baseSize + Math.round(units.smallSpacing/2);
         }
     }
+
     property int hiddenItemSize: units.iconSizes.smallMedium
     property alias expanded: dialog.visible
     property Item activeApplet
@@ -190,13 +191,13 @@ MouseArea {
             interactive: false //disable features we don't need
             flow: vertical ? GridView.LeftToRight : GridView.TopToBottom
 
-            cellHeight: Math.min(root.itemSize + plasmoid.configuration.iconsSpacing, root.height)
-            cellWidth: Math.min(root.itemSize + plasmoid.configuration.iconsSpacing, root.width)
+            cellHeight: vertical ? root.itemSize + plasmoid.configuration.iconsSpacing : root.height / rows
+            cellWidth: vertical ? root.width / columns : root.itemSize + plasmoid.configuration.iconsSpacing
 
             readonly property int columns: !vertical ? Math.ceil(count / rows)
-                                           : Math.max(1, Math.floor(root.width / cellWidth))
+                                           : Math.max(1, Math.floor(root.width / (root.itemSize + plasmoid.configuration.iconsSpacing)))
             readonly property int rows: vertical ? Math.ceil(count / columns)
-                                           : Math.max(1, Math.floor(root.height / cellHeight))
+                                           : Math.max(1, Math.floor(root.height / (root.itemSize + plasmoid.configuration.iconsSpacing)))
 
             implicitHeight: rows * cellHeight
             implicitWidth: columns * cellWidth
