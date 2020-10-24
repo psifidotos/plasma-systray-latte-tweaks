@@ -129,14 +129,13 @@ PlasmaCore.ToolTipArea {
         }
     }
 
-
     ColumnLayout {
+        id: itemColumn
         anchors.fill: abstractItem
         spacing: 0
 
         Item {
             id: iconContainer
-
             property alias inVisibleLayout: abstractItem.inVisibleLayout
             readonly property int size: abstractItem.inVisibleLayout ? root.itemSize : units.iconSizes.medium
 
@@ -144,6 +143,8 @@ PlasmaCore.ToolTipArea {
             implicitWidth: root.vertical && abstractItem.inVisibleLayout ? abstractItem.width : size
             implicitHeight: !root.vertical && abstractItem.inVisibleLayout ? abstractItem.height : size
             Layout.topMargin: abstractItem.inHiddenLayout ? units.smallSpacing : 0
+
+            visible: !colorizerLoader.active
         }
         PlasmaComponents3.Label {
             id: label
@@ -175,7 +176,10 @@ PlasmaCore.ToolTipArea {
     //!Latte Coloring Approach with Colorizer and BrightnessContrast for hovering effect
     Loader {
         id: colorizerLoader
-        anchors.fill: itemRow
+        anchors.centerIn: itemColumn
+        width: iconContainer.width
+        height: iconContainer.height
+
         active: root.inLatte
                && !abstractItem.inHiddenLayout
                && !labelVisible
@@ -193,7 +197,10 @@ PlasmaCore.ToolTipArea {
 
     Loader {
         id: hoveredColorizerLoader
-        anchors.fill: itemRow
+        anchors.centerIn: itemColumn
+        width: iconContainer.width
+        height: iconContainer.height
+
         active: colorizerLoader.active
         z:1001
 
@@ -210,6 +217,5 @@ PlasmaCore.ToolTipArea {
             }
         }
     }
-
 }
 

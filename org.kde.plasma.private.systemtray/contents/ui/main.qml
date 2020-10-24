@@ -49,7 +49,7 @@ MouseArea {
     readonly property bool vertical: plasmoid.formFactor === PlasmaCore.Types.Vertical
     readonly property bool autoSize: plasmoid.configuration.scaleIconsToFit
     readonly property int cellThickness: root.vertical ? root.width : root.height
-    readonly property int rowsOrColumns: autoSize ? 1 : Math.max(1, Math.floor(cellThickness / (smallIconSize + PlasmaCore.Units.smallSpacing)))
+    readonly property int rowsOrColumns: autoSize ? 1 : Math.max(1, Math.floor(cellThickness / (smallIconSize + plasmoid.configuration.iconsSpacing)))
 
     property alias expanded: dialog.visible
     property Item activeApplet
@@ -181,7 +181,7 @@ MouseArea {
 
         GridView {
             id: tasksGrid
-            readonly property int smallSizeCellLength: root.cellThickness >= root.smallIconSize ? root.smallIconSize + units.smallSpacing * 2
+            readonly property int smallSizeCellLength: root.cellThickness >= root.smallIconSize ? root.smallIconSize + plasmoid.configuration.iconsSpacing
                                                                                                : root.smallIconSize
             readonly property int autoSizeCellLength: root.cellThickness / root.rowsOrColumns
             readonly property int totalLength: root.vertical ? cellHeight * Math.round(count / root.rowsOrColumns)
