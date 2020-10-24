@@ -1,5 +1,7 @@
+
+
 /***************************************************************************
- *   Copyright 2013 by Sebastian Kügler <sebas@kde.org>                    *
+ *   Copyright (C) 2020 Konrad Materka <materka@gmail.com>                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -16,20 +18,32 @@
  *   Free Software Foundation, Inc.,                                       *
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA .        *
  ***************************************************************************/
+import QtQuick 2.14
+import QtQuick.Controls 2.14 as QQC2
+import QtQuick.Layouts 1.13
 
-import QtQuick 2.0
+import org.kde.plasma.core 2.1 as PlasmaCore
 
-import org.kde.plasma.configuration 2.0
+import org.kde.kirigami 2.13 as Kirigami
 
-ConfigModel {
-    ConfigCategory {
-         name: i18n("General")
-         icon: "plasma"
-         source: "ConfigGeneral.qml"
-    }
-    ConfigCategory {
-         name: i18n("Entries")
-         icon: "preferences-desktop-notification"
-         source: "ConfigEntries.qml"
+ColumnLayout {
+    property bool cfg_scaleIconsToFit
+
+    Kirigami.FormLayout {
+        Layout.fillHeight: true
+
+        QQC2.RadioButton {
+            Kirigami.FormData.label: i18nc("The arrangement of system tray icons in the Panel", "Panel icon size:")
+            text: i18n("Small")
+            checked: cfg_scaleIconsToFit == false
+            onToggled: cfg_scaleIconsToFit = !checked
+        }
+        QQC2.RadioButton {
+            id: automaticRadioButton
+            text: plasmoid.formFactor === PlasmaCore.Types.Horizontal ? i18n("Scale with Panel height")
+                                                                      : i18n("Scale with Panel width")
+            checked: cfg_scaleIconsToFit == true
+            onToggled: cfg_scaleIconsToFit = checked
+        }
     }
 }

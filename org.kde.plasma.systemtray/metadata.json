@@ -7,9 +7,8 @@
             }
         ],
         "Category": "Windows and Tasks",
-        "Dependencies": [
-        ],
         "Description": "Access hidden applications minimized in the system tray",
+        "Description[az]": "Sistem çəkməcəsinə yığılmış gizli tətbiqlərə giriş",
         "Description[be@latin]": "Dostup da schavanych u systemnym trei aplikacyjaŭ",
         "Description[bg]": "Достъп до минимизираните в системния панел програми",
         "Description[bs]": "Pristup skrivenim programima minimizovanim u sistemsku kasetu",
@@ -68,7 +67,6 @@
         "Description[sr@ijekavianlatin]": "Pristup skrivenim programima minimizovanim u sistemsku kasetu",
         "Description[sr@latin]": "Pristup skrivenim programima minimizovanim u sistemsku kasetu",
         "Description[sr]": "Приступ скривеним програмима минимизованим у системску касету",
-        "Description[sv]": "Kom åt dolda program minimerade i systembrickan",
         "Description[ta]": "Access hidden applications minimized in the system tray",
         "Description[te]": "సిస్టమ్ ట్రేనందు మినిమైజ్ కాబడి దాగివున్న అనువవర్తనములను యాక్సిస్ చేయుము",
         "Description[th]": "เข้าใช้งานโปรแกรมที่ซ่อนตัวอยู่ในถาดระบบ",
@@ -81,6 +79,9 @@
         "Description[zh_CN]": "访问在系统托盘中最小化隐藏的应用程序",
         "Description[zh_TW]": "存取最小化在系統匣內的隱藏應用程式",
         "EnabledByDefault": true,
+        "FormFactors": [
+            "desktop"
+        ],
         "Icon": "preferences-desktop-notification",
         "Id": "org.kde.plasma.systemtray",
         "License": "GPL-2.0+",
@@ -88,6 +89,7 @@
         "Name[af]": "Stelsellaai",
         "Name[ar]": "صينية النظام",
         "Name[ast]": "Bandexa del sistema",
+        "Name[az]": "Sistem Çəkməcəsi",
         "Name[be@latin]": "Systemny trej",
         "Name[be]": "Сістэмны трэй",
         "Name[bg]": "Системен панел",
@@ -158,9 +160,9 @@
         "Name[sr@ijekavianlatin]": "sistemska kaseta",
         "Name[sr@latin]": "sistemska kaseta",
         "Name[sr]": "системска касета",
-        "Name[sv]": "Systembricka",
         "Name[ta]": "சாதன தட்டு",
         "Name[te]": "వ్యవస్థ ట్రె",
+        "Name[tg]": "Лавҳачаи низомӣ",
         "Name[th]": "ถาดระบบ",
         "Name[tr]": "Sistem Çekmecesi",
         "Name[ug]": "سىستېما قوندىقى",

@@ -25,9 +25,9 @@
     <entry name="knownItems" type="StringList" hidden="true">
       <default></default>
     </entry>
-    <entry name="iconSize" type="Int">
-      <label>Default icon size for the systray icons, it's an enum which values mean, Small, SmallMedium, Medium, Large, Huge, Enormous respectively. On low DPI systems they correspond to 16, 22, 32, 48, 64, 128 pixels. On high DPI systems those values would be scaled up, depending on the DPI.</label>
-      <default>1</default>
+    <entry name="scaleIconsToFit" type="bool">
+      <label>Whether to automatically scale System Tray icons to fix the available thickness of the panel. If false, tray icons will be capped at the smallMedium size (22px) and become a two-row/column layout when the panel is thick.</label>
+      <default>false</default>
     </entry>
     <entry name="pin" type="Bool">
       <label>Whether the popup should remain open when another window is activated</label>
