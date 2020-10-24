@@ -32,4 +32,9 @@ ConfigModel {
          icon: "preferences-desktop-notification"
          source: "ConfigEntries.qml"
     }
+    ConfigCategory {
+         name: i18n("Appearance")
+         icon: "preferences-desktop-wallpaper"
+         source: "ConfigAppearance.qml"
+    }    
 }

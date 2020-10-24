@@ -24,6 +24,8 @@ import QtQuick.Layouts 1.1
 import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.components 3.0 as PlasmaComponents3
 
+import QtGraphicalEffects 1.0
+
 PlasmaCore.ToolTipArea {
     id: abstractItem
 
@@ -35,6 +37,7 @@ PlasmaCore.ToolTipArea {
     property string itemId
     property alias text: label.text
     property alias iconContainer: iconContainer
+    property bool labelVisible: inHiddenLayout && !root.activeApplet
     property int /*PlasmaCore.Types.ItemStatus*/ status: model.status || PlasmaCore.Types.UnknownStatus
     property int /*PlasmaCore.Types.ItemStatus*/ effectiveStatus: model.effectiveStatus || PlasmaCore.Types.UnknownStatus
     readonly property bool inHiddenLayout: effectiveStatus === PlasmaCore.Types.PassiveStatus
@@ -62,6 +65,7 @@ PlasmaCore.ToolTipArea {
         return plasmoid.location;
     }
 
+
 //BEGIN CONNECTIONS
 
     onContainsMouseChanged: {
@@ -75,8 +79,8 @@ PlasmaCore.ToolTipArea {
     PulseAnimation {
         targetItem: iconContainer
         running: (abstractItem.status === PlasmaCore.Types.NeedsAttentionStatus ||
-            abstractItem.status === PlasmaCore.Types.RequiresAttentionStatus ) &&
-            units.longDuration > 0
+                  abstractItem.status === PlasmaCore.Types.RequiresAttentionStatus ) &&
+                 units.longDuration > 0
     }
 
     function activated() {
@@ -125,6 +129,7 @@ PlasmaCore.ToolTipArea {
         }
     }
 
+
     ColumnLayout {
         anchors.fill: abstractItem
         spacing: 0
@@ -166,5 +171,45 @@ PlasmaCore.ToolTipArea {
             }
         }
     }
+
+    //!Latte Coloring Approach with Colorizer and BrightnessContrast for hovering effect
+    Loader {
+        id: colorizerLoader
+        anchors.fill: itemRow
+        active: root.inLatte
+               && !abstractItem.inHiddenLayout
+               && !labelVisible
+               && itemId.length > 0
+               && (plasmoid.configuration.blockedAutoColorItems.indexOf(itemId) < 0)
+
+        z:1000
+
+        sourceComponent: ColorOverlay {
+            anchors.fill: parent
+            source: iconContainer
+            color: root.inLatte ? latteBridge.palette.textColor : "transparent"
+        }
+    }
+
+    Loader {
+        id: hoveredColorizerLoader
+        anchors.fill: itemRow
+        active: colorizerLoader.active
+        z:1001
+
+        sourceComponent: BrightnessContrast {
+            anchors.fill: parent
+            source: colorizerLoader.item
+            brightness: 0.2
+            contrast: 0.1
+
+            opacity: abstractItem.containsMouse ? 1 : 0
+
+            Behavior on opacity {
+                NumberAnimation { duration: 200 }
+            }
+        }
+    }
+
 }
 
