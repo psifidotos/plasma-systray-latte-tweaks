@@ -19,6 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA .        *
  ***************************************************************************/
 import QtQuick 2.14
+import QtQuick.Controls 1.0 as QtControls
 import QtQuick.Controls 2.14 as QQC2
 import QtQuick.Layouts 1.13
 
@@ -27,7 +28,12 @@ import org.kde.plasma.core 2.1 as PlasmaCore
 import org.kde.kirigami 2.13 as Kirigami
 
 ColumnLayout {
+    id: generalPage
     property bool cfg_scaleIconsToFit
+
+    property alias cfg_iconsSpacing: iconsSpacing.value
+    property alias cfg_internalMainHighlightEnabled: internalHighlightChk.checked
+
 
     Kirigami.FormLayout {
         Layout.fillHeight: true
@@ -44,6 +50,30 @@ ColumnLayout {
                                                                       : i18n("Scale with Panel width")
             checked: cfg_scaleIconsToFit == true
             onToggled: cfg_scaleIconsToFit = checked
+        }
+
+        QQC2.Label {
+            text: " "
+        }
+
+        QtControls.SpinBox{
+            id: iconsSpacing
+            minimumValue: 0
+            maximumValue: 36 //in pixels
+
+            suffix: i18nc("pixels","px.")
+
+            Kirigami.FormData.label: i18n("Spacing:")
+        }
+
+        QQC2.Label {
+            text: " "
+        }
+
+        QtControls.CheckBox {
+            id: internalHighlightChk
+            text: i18n("Internal highlight for main popup window is enabled")
+            Kirigami.FormData.label: i18n("Highlight:")
         }
     }
 }

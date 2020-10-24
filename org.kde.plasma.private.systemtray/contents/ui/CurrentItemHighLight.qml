@@ -51,7 +51,7 @@ PlasmaCore.FrameSvgItem {
             }
             return prefix;
         }
-    opacity: parent && dialog.visible ? plasmoid.configuration.internalMainHighlightEnabled : 0
+    opacity: parent && dialog.visible && (plasmoid.configuration.internalMainHighlightEnabled || visibleAppletActivated)? 1 : 0
 
     Behavior on opacity {
         NumberAnimation {

@@ -118,7 +118,7 @@ MouseArea {
 
             if (root.internalMainHighlightEnabled || parent !== root) {
                 latteBridge.actions.setProperty(plasmoid.id, "activeIndicatorEnabled", false);
-            } else if (target) {
+            } else if (parent) {
                 latteBridge.actions.setProperty(plasmoid.id, "activeIndicatorEnabled", true);
             }
         }
@@ -183,7 +183,7 @@ MouseArea {
             id: tasksGrid
             readonly property int smallSizeCellLength: root.cellThickness >= root.smallIconSize ? root.smallIconSize + plasmoid.configuration.iconsSpacing
                                                                                                : root.smallIconSize
-            readonly property int autoSizeCellLength: root.cellThickness / root.rowsOrColumns
+            readonly property int autoSizeCellLength: (root.cellThickness / root.rowsOrColumns)
             readonly property int totalLength: root.vertical ? cellHeight * Math.round(count / root.rowsOrColumns)
                                                              : cellWidth * Math.round(count / root.rowsOrColumns)
 
@@ -195,8 +195,8 @@ MouseArea {
             implicitHeight: root.vertical ? totalLength : root.height
             implicitWidth: !root.vertical ? totalLength : root.width
 
-            cellHeight: root.vertical && !root.autoSize ? smallSizeCellLength : autoSizeCellLength
-            cellWidth:  !root.vertical && !root.autoSize ? smallSizeCellLength : autoSizeCellLength
+            cellHeight: root.vertical && !root.autoSize ? smallSizeCellLength : autoSizeCellLength + (root.vertical ? plasmoid.configuration.iconsSpacing : 0)
+            cellWidth:  !root.vertical && !root.autoSize ? smallSizeCellLength : autoSizeCellLength + (!root.vertical ? plasmoid.configuration.iconsSpacing : 0)
 
             model: PlasmaCore.SortFilterModel {
                 sourceModel: plasmoid.nativeInterface.systemTrayModel

@@ -144,7 +144,7 @@ PlasmaCore.ToolTipArea {
             implicitHeight: !root.vertical && abstractItem.inVisibleLayout ? abstractItem.height : size
             Layout.topMargin: abstractItem.inHiddenLayout ? units.smallSpacing : 0
 
-            visible: !colorizerLoader.active
+            opacity: !colorizerLoader.active
         }
         PlasmaComponents3.Label {
             id: label
