@@ -181,10 +181,11 @@ PlasmaCore.ToolTipArea {
         height: iconContainer.height
 
         active: root.inLatte
-               && !abstractItem.inHiddenLayout
-               && !labelVisible
-               && itemId.length > 0
-               && (plasmoid.configuration.blockedAutoColorItems.indexOf(itemId) < 0)
+                && root.inLatteCustomPalette
+                && !abstractItem.inHiddenLayout
+                && !labelVisible
+                && itemId.length > 0
+                && (plasmoid.configuration.blockedAutoColorItems.indexOf(itemId) < 0)
 
         z:1000
 
