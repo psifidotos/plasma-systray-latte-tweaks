@@ -132,26 +132,28 @@ PlasmaCore.ToolTipArea {
         Item {
             id: iconContainer
 
+            property alias container: abstractItem
             property alias inVisibleLayout: abstractItem.inVisibleLayout
             readonly property int size: abstractItem.inVisibleLayout ? root.itemSize : units.iconSizes.medium
 
-            Layout.alignment: Qt.AlignHCenter
+            Layout.alignment: Qt.Bottom | Qt.AlignHCenter
+            Layout.fillHeight: abstractItem.inHiddenLayout ? true : false
             implicitWidth: root.vertical && abstractItem.inVisibleLayout ? abstractItem.width : size
             implicitHeight: !root.vertical && abstractItem.inVisibleLayout ? abstractItem.height : size
-            Layout.topMargin: abstractItem.inHiddenLayout ? units.smallSpacing : 0
+            Layout.topMargin: abstractItem.inHiddenLayout ? Math.round(units.smallSpacing * 1.5): 0
         }
         PlasmaComponents3.Label {
             id: label
 
             Layout.fillWidth: true
-            Layout.fillHeight: true
+            Layout.fillHeight: abstractItem.inHiddenLayout ? true : false
             Layout.leftMargin: abstractItem.inHiddenLayout ? units.smallSpacing : 0
             Layout.rightMargin: abstractItem.inHiddenLayout ? units.smallSpacing : 0
             Layout.bottomMargin: abstractItem.inHiddenLayout ? units.smallSpacing : 0
 
-            visible: abstractItem.inHiddenLayout && !root.activeApplet
+            visible: abstractItem.inHiddenLayout
 
-            verticalAlignment: Text.AlignVCenter
+            verticalAlignment: Text.AlignTop
             horizontalAlignment: Text.AlignHCenter
             elide: Text.ElideRight
             wrapMode: Text.Wrap

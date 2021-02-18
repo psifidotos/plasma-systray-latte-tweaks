@@ -22,24 +22,29 @@ import QtQuick.Layouts 1.1
 import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.plasmoid 2.0
 
+//SystemTray is a Containment. To have it presented as a widget in Plasma we need thin wrapping applet
 Item {
     id: root
 
     Layout.minimumWidth: internalSystray ? internalSystray.Layout.minimumWidth : 0
     Layout.minimumHeight: internalSystray ? internalSystray.Layout.minimumHeight : 0
+    Layout.preferredWidth: Layout.minimumWidth
     Layout.preferredHeight: Layout.minimumHeight
 
     Plasmoid.preferredRepresentation: Plasmoid.fullRepresentation
     Plasmoid.status: internalSystray ? internalSystray.status : PlasmaCore.Types.UnknownStatus
 
+    //synchronize state between SystemTray and wrapping Applet
     Plasmoid.onExpandedChanged: {
-        if (internalSystray && !plasmoid.expanded) {
-            internalSystray.expanded = false;
+        if (internalSystray) {
+            internalSystray.expanded = plasmoid.expanded
         }
     }
     Connections {
         target: internalSystray
-        onExpandedChanged: plasmoid.expanded = internalSystray.expanded
+        function onExpandedChanged() {
+            plasmoid.expanded = internalSystray.expanded
+        }
     }
 
     property Item internalSystray
@@ -56,7 +61,7 @@ Item {
 
     Connections {
         target: plasmoid.nativeInterface
-        onInternalSystrayChanged: {
+        function onInternalSystrayChanged() {
             root.internalSystray = plasmoid.nativeInterface.internalSystray;
             root.internalSystray.parent = root;
             root.internalSystray.anchors.fill = root;
