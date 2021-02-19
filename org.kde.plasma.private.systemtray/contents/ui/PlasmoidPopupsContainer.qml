@@ -27,13 +27,12 @@ import org.kde.plasma.extras 2.0 as PlasmaExtras
 
 StackView {
     id: mainStack
-    clip: true
     focus: true
 
     Layout.minimumWidth: units.gridUnit * 12
     Layout.minimumHeight: units.gridUnit * 12
 
-    property Item activeApplet
+    readonly property Item activeApplet: systemTrayState.activeApplet
 
     /* Heading */
     property bool appletHasHeading: false
@@ -67,15 +66,15 @@ StackView {
                 }
             }
 
-            mainStack.replace({item: activeApplet.fullRepresentationItem, immediate: !dialog.visible, properties: {focus: true}});
+            mainStack.replace({item: activeApplet.fullRepresentationItem, immediate: !systemTrayState.expanded, properties: {focus: true}});
         } else {
             mainStack.replace(emptyPage);
         }
     }
     Connections {
         target: plasmoid
-        onAppletRemoved: {
-            if (applet == root.activeApplet) {
+        function onAppletRemoved(applet) {
+            if (applet === systemTrayState.activeApplet) {
                 mainStack.clear()
             }
         }

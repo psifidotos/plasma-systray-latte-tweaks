@@ -33,15 +33,14 @@ PlasmaCore.ToolTipArea {
     property bool vertical: plasmoid.formFactor === PlasmaCore.Types.Vertical
     implicitWidth: units.iconSizes.smallMedium
     implicitHeight: implicitWidth
-    visible: root.hiddenLayout.itemCount > 0
-    subText: root.expanded ? i18n("Close popup") : i18n("Show hidden icons")
+    subText: systemTrayState.expanded ? i18n("Close popup") : i18n("Show hidden icons")
 
     readonly property int length: units.iconSizes.smallMedium + plasmoid.configuration.iconsSpacing
 
     MouseArea {
         id: arrowMouseArea
         anchors.fill: parent
-        onClicked: root.expanded = !root.expanded
+        onClicked: systemTrayState.expanded = !systemTrayState.expanded
 
         readonly property int arrowAnimationDuration: units.shortDuration
 
@@ -55,23 +54,9 @@ PlasmaCore.ToolTipArea {
 
             width: units.iconSizes.smallMedium
             height: width
-
-            transformOrigin: Item.Center
-
-            rotation: root.expanded ? 180 : 0
-            Behavior on rotation {
-                RotationAnimation {
-                    duration: arrowMouseArea.arrowAnimationDuration
-                }
-            }
-           // opacity: root.expanded ? 0 : 1
-            Behavior on opacity {
-                NumberAnimation {
-                    duration: arrowMouseArea.arrowAnimationDuration
-                }
-            }
-
+            rotation: systemTrayState.expanded ? 180 : 0
             svg: arrowSvg
+
             elementId: {
                 if (plasmoid.location === PlasmaCore.Types.TopEdge) {
                     return "down-arrow";
@@ -83,6 +68,20 @@ PlasmaCore.ToolTipArea {
                     return "up-arrow";
                 }
             }
+
+            Behavior on rotation {
+                RotationAnimation {
+                    duration: arrowMouseArea.arrowAnimationDuration
+                }
+            }
+
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: arrowMouseArea.arrowAnimationDuration
+                }
+            }
+
+
 
             states: [
                 ///horizontal
@@ -118,7 +117,7 @@ PlasmaCore.ToolTipArea {
         sourceComponent: ColorOverlay {
             anchors.fill: parent
             source: arrowMouseArea
-            color: root.inLatte ? latteBridge.palette.textColor : "transparent"
+            color: root.inLatteCustomPalette ? latteBridge.palette.textColor : "transparent"
         }
     }
 

@@ -18,6 +18,8 @@
  */
 
 import QtQuick 2.1
+import QtQml 2.15
+
 import org.kde.plasma.core 2.0 as PlasmaCore
 
 AbstractItem {
@@ -31,11 +33,20 @@ AbstractItem {
     subText: applet ? applet.toolTipSubText : ""
     mainItem: applet && applet.toolTipItem ? applet.toolTipItem : null
     textFormat: applet ? applet.toolTipTextFormat : ""
-    active: root.activeApplet !== applet
+    active: systemTrayState.activeApplet !== applet
 
     onClicked: {
-        if (applet && mouse.button === Qt.LeftButton) {
-            applet.expanded = true;
+        if (!applet) {
+            return
+        }
+        //forward click event to the applet
+        if (mouse.button === Qt.LeftButton || mouse.button === Qt.MidButton) {
+            const mouseArea = findMouseArea(applet.compactRepresentationItem)
+            if (mouseArea) {
+                mouseArea.clicked(mouse)
+            } else if (mouse.button === Qt.LeftButton) {//falback
+                applet.expanded = true
+            }
         }
     }
     onPressed: {
@@ -47,6 +58,38 @@ AbstractItem {
         if (applet) {
             plasmoid.nativeInterface.showPlasmoidMenu(applet, 0, plasmoidContainer.inHiddenLayout ? applet.height : 0);
         }
+    }
+    onWheel: {
+        if (!applet) {
+            return
+        }
+        //forward wheel event to the applet
+        const mouseArea = findMouseArea(applet.compactRepresentationItem)
+        if (mouseArea) {
+            mouseArea.wheel(wheel)
+        }
+    }
+
+    //some heuristics to find MouseArea
+    function findMouseArea(item) {
+        if (!item) {
+            return null
+        }
+
+        if (item instanceof MouseArea) {
+            return item
+        }
+        for (var i = 0; i < item.children.length; i++) {
+            const child = item.children[i]
+            if (child instanceof MouseArea && child.enabled) {
+                //check if MouseArea covers the entire item
+                if (child.anchors.fill === item || (child.x === 0 && child.y === 0 && child.height === item.height && child.width === item.width)) {
+                    return child
+                }
+            }
+        }
+
+        return null
     }
 
     //This is to make preloading effective, minimizes the scene changes
@@ -70,24 +113,16 @@ AbstractItem {
 
     Connections {
         target: applet
+
+        //activation using global keyboard shortcut
         function onActivated() {
             plasmoidContainer.activated()
         }
 
         function onExpandedChanged(expanded) {
             if (expanded) {
-                var oldApplet = root.activeApplet;
-                root.activeApplet = applet;
-                if (oldApplet && oldApplet !== applet) {
-                    oldApplet.expanded = false;
-                }
-                dialog.visible = true;
+                systemTrayState.setActiveApplet(applet)
                 plasmoidContainer.activated()
-
-            } else if (root.activeApplet === applet) {
-                // if not expanded we don't have an active applet anymore
-                root.activeApplet = null;
-                dialog.visible = false;
             }
         }
 
@@ -101,5 +136,6 @@ AbstractItem {
         value: !plasmoid.configuration.pin
         target: plasmoidContainer.applet
         when: null !== plasmoidContainer.applet
+        restoreMode: Binding.RestoreBinding
     }
 }

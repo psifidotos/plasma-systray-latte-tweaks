@@ -109,6 +109,11 @@ ColumnLayout {
                         Layout.preferredWidth: itemsList.keySequenceColumnWidth
                         Component.onCompleted: itemsList.keySequenceColumnWidth = Math.max(implicitWidth, itemsList.keySequenceColumnWidth)
                     }
+                    QQC2.Button { // Configure button column
+                        icon.name: "configure"
+                        enabled: false
+                        opacity: 0
+                    }
                 }
             }
 
@@ -120,7 +125,6 @@ ColumnLayout {
             }
 
             delegate: Kirigami.AbstractListItem {
-
                 highlighted: false
                 hoverEnabled: false
 
@@ -306,6 +310,21 @@ ColumnLayout {
                         Layout.minimumWidth: itemsList.keySequenceColumnWidth
                         Layout.maximumWidth: itemsList.keySequenceColumnWidth
                         visible: !keySequenceItem.visible
+                    }
+
+                    QQC2.Button {
+                        readonly property QtObject configureAction: (model.applet && model.applet.action("configure")) || null
+
+                        Accessible.name: configureAction ? configureAction.text : ""
+                        icon.name: "configure"
+                        enabled: configureAction && configureAction.visible && configureAction.enabled
+                        // Still reserve layout space, so not setting visible to false
+                        opacity: enabled ? 1 : 0
+                        onClicked: configureAction.trigger()
+
+                        QQC2.ToolTip {
+                            text: parent.Accessible.name
+                        }
                     }
                 }
             }
