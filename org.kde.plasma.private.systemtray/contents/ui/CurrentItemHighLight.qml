@@ -30,7 +30,11 @@ PlasmaCore.FrameSvgItem {
     z: -1 // always draw behind icons
     width: parent.width
     height: parent.height
-    opacity: parent && systemTrayState.expanded && plasmoid.configuration.internalMainHighlightEnabled ? 1 : 0
+    opacity: parent && systemTrayState.expanded && (plasmoid.configuration.internalMainHighlightEnabled || isAppletExpanded) ? 1 : 0
+
+    readonly property bool isAppletExpanded: systemTrayState.activeApplet
+                                             && systemTrayState.activeApplet.parent
+                                             && systemTrayState.activeApplet.parent.inVisibleLayout
 
     function changeHighlightedItem(nextItem) {
         parent = nextItem;

@@ -25,7 +25,6 @@ import org.kde.plasma.plasmoid 2.0
 //SystemTray is a Containment. To have it presented as a widget in Plasma we need thin wrapping applet
 Item {
     id: root
-
     Layout.minimumWidth: internalSystray ? internalSystray.Layout.minimumWidth : 0
     Layout.minimumHeight: internalSystray ? internalSystray.Layout.minimumHeight : 0
     Layout.preferredWidth: Layout.minimumWidth

@@ -152,22 +152,19 @@ MouseArea {
             interactive: false //disable features we don't need
             flow: vertical ? GridView.LeftToRight : GridView.TopToBottom
 
-            //depending on the form factor, we are calculating only one dimention, second is always the same as root/parent
-            implicitHeight: root.vertical ? cellHeight * Math.ceil(count / rowsOrColumns) : root.height
-            implicitWidth: !root.vertical ? cellWidth * Math.ceil(count / rowsOrColumns) : root.width
+            implicitWidth: !root.vertical ? cellWidth * lengthLines : cellWidth * thicknessLines
+            implicitHeight: !root.vertical ? cellHeight * thicknessLines : cellHeight * lengthLines
 
-            cellHeight: root.vertical && !root.autoSize ? smallSizeCellLength : autoSizeCellLength + (root.vertical ? plasmoid.configuration.iconsSpacing : 0)
-            cellWidth:  !root.vertical && !root.autoSize ? smallSizeCellLength : autoSizeCellLength + (!root.vertical ? plasmoid.configuration.iconsSpacing : 0)
+            cellWidth: !root.vertical && !autoSize ? smallSizeCellLength : autoSizeCellThickness + (!root.vertical ? plasmoid.configuration.iconsSpacing : 0)
+            cellHeight: root.vertical && !autoSize ? smallSizeCellLength : autoSizeCellThickness + (root.vertical ? plasmoid.configuration.iconsSpacing : 0)
 
             // Used only by AbstractItem, but it's easiest to keep it here since it
             // uses dimensions from this item to calculate the final value
-            readonly property int itemSize: autoSize ? PlasmaCore.Units.roundToIconSize(Math.min(Math.min(root.width / rowsOrColumns, root.height / rowsOrColumns), PlasmaCore.Units.iconSizes.enormous)) :
+            readonly property int itemSize: autoSize ? PlasmaCore.Units.roundToIconSize(Math.min(Math.min(root.width / thicknessLines, root.height / thicknessLines), PlasmaCore.Units.iconSizes.enormous)) :
                                                        smallIconSize
 
-            readonly property int smallSizeCellLength: rootThickness >= smallIconSize ? smallIconSize + plasmoid.configuration.iconsSpacing
-                                                                                      : smallIconSize
-            readonly property int rootThickness: root.vertical ? root.width : root.height
-            readonly property int autoSizeCellLength: (rootThickness / rowsOrColumns)
+            readonly property int smallSizeCellLength: smallIconSize + plasmoid.configuration.iconsSpacing
+            readonly property int autoSizeCellThickness: (gridThickness / thicknessLines)
 
             // The icon size to display when not using the auto-scaling setting
             readonly property int smallIconSize: PlasmaCore.Units.iconSizes.smallMedium
@@ -175,8 +172,8 @@ MouseArea {
 
             readonly property int gridThickness: root.vertical ? root.width : root.height
             // Should change to 2 rows/columns on a 56px panel (in standard DPI)
-            readonly property int rowsOrColumns: autoSize ? 1 : Math.max(1, Math.floor(rootThickness / (smallIconSize + plasmoid.configuration.iconsSpacing)))
-
+            readonly property int thicknessLines: autoSize ? 1 : Math.max(1, Math.floor(gridThickness / (smallIconSize + plasmoid.configuration.iconsSpacing)))
+            readonly property int lengthLines: Math.ceil(count / thicknessLines)
 
             model: PlasmaCore.SortFilterModel {
                 sourceModel: plasmoid.nativeInterface.systemTrayModel
