@@ -31,6 +31,7 @@ ColumnLayout {
     id: generalPage
     property bool cfg_scaleIconsToFit
 
+    property alias cfg_hasReversedColors: reversedColorsChk.checked
     property alias cfg_iconsSpacing: iconsSpacing.value
     property alias cfg_internalMainHighlightEnabled: internalHighlightChk.checked
 
@@ -64,6 +65,17 @@ ColumnLayout {
             suffix: i18nc("pixels","px.")
 
             Kirigami.FormData.label: i18n("Spacing:")
+        }
+
+
+        QQC2.Label {
+            text: " "
+        }
+
+        QtControls.CheckBox {
+            id: reversedColorsChk
+            text: i18n("Reversed color palette for items")
+            Kirigami.FormData.label: i18n("Colors:")
         }
 
         QQC2.Label {

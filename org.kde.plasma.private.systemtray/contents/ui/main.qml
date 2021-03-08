@@ -221,6 +221,8 @@ MouseArea {
             id: expander
             Layout.fillWidth: vertical
             Layout.fillHeight: !vertical
+            implicitWidth: tasksGrid.cellWidth
+            implicitHeight: tasksGrid.cellHeight
             visible: root.hiddenLayout.itemCount > 0
         }
     }

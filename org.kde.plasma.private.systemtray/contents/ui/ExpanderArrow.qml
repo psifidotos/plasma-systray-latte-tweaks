@@ -26,16 +26,24 @@ import org.kde.plasma.extras 2.0 as PlasmaExtras
 
 import QtGraphicalEffects 1.0
 
-
 PlasmaCore.ToolTipArea {
     id: tooltip
 
     property bool vertical: plasmoid.formFactor === PlasmaCore.Types.Vertical
-    implicitWidth: units.iconSizes.smallMedium
-    implicitHeight: implicitWidth
     subText: systemTrayState.expanded ? i18n("Close popup") : i18n("Show hidden icons")
 
     readonly property int length: units.iconSizes.smallMedium + plasmoid.configuration.iconsSpacing
+
+    Loader {
+        anchors.centerIn: tooltip
+        active: plasmoid.configuration.hasReversedColors
+        sourceComponent: Rectangle{
+            width: root.itemSize + Math.min(4, plasmoid.configuration.iconsSpacing)
+            height: width
+            radius: 2
+            color: root.inLatte ? latteBridge.palette.textColor : theme.textColor
+        }
+    }
 
     MouseArea {
         id: arrowMouseArea
@@ -51,6 +59,7 @@ PlasmaCore.ToolTipArea {
 
         PlasmaCore.SvgItem {
             id: arrow
+            anchors.centerIn: parent
 
             width: units.iconSizes.smallMedium
             height: width
@@ -111,13 +120,19 @@ PlasmaCore.ToolTipArea {
     Loader {
         id: colorizerLoader
         anchors.fill: parent
-        active: root.inLatte
+        active: root.inLatte || plasmoid.configuration.hasReversedColors
         z:1000
 
         sourceComponent: ColorOverlay {
             anchors.fill: parent
             source: arrowMouseArea
-            color: root.inLatteCustomPalette ? latteBridge.palette.textColor : "transparent"
+            color: {
+                if (root.inLatteCustomPalette) {
+                    return plasmoid.configuration.hasReversedColors ? latteBridge.palette.backgroundColor : latteBridge.palette.textColor
+                }
+
+                return plasmoid.configuration.hasReversedColors ? theme.backgroundColor : theme.textColor
+            }
         }
     }
 
