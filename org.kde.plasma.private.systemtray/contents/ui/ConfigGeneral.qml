@@ -84,7 +84,7 @@ ColumnLayout {
             id: reversedBackgroundRadiusSlider
             enabled: cfg_hasReversedColors
             from: 0
-            to: 100
+            to: 50
             Kirigami.FormData.label: i18n("Background radius:")
         }
         QQC2.Slider {
