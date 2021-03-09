@@ -43,6 +43,15 @@
       <label>Whether reversed color pallete will be used for icons in the systray</label>
       <default>false</default>
     </entry>    
+    <entry name="reversedBackgroundRadius" type="Int">
+      <label>Radius of reversed background</label>
+      <default>30</default>
+    </entry>
+    <entry name="reversedBackgroundOpacity" type="Int">
+      <label>Opacity of reversed background</label>
+      <default>70</default>
+    </entry>
+
     <entry name="internalMainHighlightEnabled" type="Bool">
       <label>internal main highlight state</label>
       <default>true</default>

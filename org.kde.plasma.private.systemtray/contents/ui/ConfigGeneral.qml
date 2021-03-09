@@ -32,6 +32,8 @@ ColumnLayout {
     property bool cfg_scaleIconsToFit
 
     property alias cfg_hasReversedColors: reversedColorsChk.checked
+    property alias cfg_reversedBackgroundRadius: reversedBackgroundRadiusSlider.value
+    property alias cfg_reversedBackgroundOpacity: reversedBackgroundOpacitySlider.value
     property alias cfg_iconsSpacing: iconsSpacing.value
     property alias cfg_internalMainHighlightEnabled: internalHighlightChk.checked
 
@@ -76,6 +78,21 @@ ColumnLayout {
             id: reversedColorsChk
             text: i18n("Reversed color palette for items")
             Kirigami.FormData.label: i18n("Colors:")
+        }
+
+        QQC2.Slider {
+            id: reversedBackgroundRadiusSlider
+            enabled: cfg_hasReversedColors
+            from: 0
+            to: 100
+            Kirigami.FormData.label: i18n("Background radius:")
+        }
+        QQC2.Slider {
+            id: reversedBackgroundOpacitySlider
+            enabled: cfg_hasReversedColors
+            from: 0
+            to: 100
+            Kirigami.FormData.label: i18n("Background opacity:")
         }
 
         QQC2.Label {

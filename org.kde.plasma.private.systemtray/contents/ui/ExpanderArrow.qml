@@ -40,8 +40,9 @@ PlasmaCore.ToolTipArea {
         sourceComponent: Rectangle{
             width: root.itemSize + Math.min(4, plasmoid.configuration.iconsSpacing)
             height: width
-            radius: 2
+            radius: width * plasmoid.configuration.reversedBackgroundRadius/100
             color: root.inLatte ? latteBridge.palette.textColor : theme.textColor
+            opacity: plasmoid.configuration.reversedBackgroundOpacity/100
         }
     }
 
