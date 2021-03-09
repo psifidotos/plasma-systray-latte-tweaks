@@ -31,6 +31,7 @@ ColumnLayout {
     id: generalPage
     property bool cfg_scaleIconsToFit
 
+    property alias cfg_hasBackgroundLayer: hasBackgroundLayerChk.checked
     property alias cfg_hasReversedColors: reversedColorsChk.checked
     property alias cfg_reversedBackgroundRadius: reversedBackgroundRadiusSlider.value
     property alias cfg_reversedBackgroundOpacity: reversedBackgroundOpacitySlider.value
@@ -75,24 +76,41 @@ ColumnLayout {
         }
 
         QtControls.CheckBox {
-            id: reversedColorsChk
-            text: i18n("Reversed color palette for items")
-            Kirigami.FormData.label: i18n("Colors:")
+            id: hasBackgroundLayerChk
+            text: i18n("Add a background layer to items")
+            Kirigami.FormData.label: i18n("Background:")
         }
 
-        QQC2.Slider {
-            id: reversedBackgroundRadiusSlider
-            enabled: cfg_hasReversedColors
-            from: 0
-            to: 50
-            Kirigami.FormData.label: i18n("Background radius:")
+        QtControls.CheckBox {
+            id: reversedColorsChk
+            enabled: cfg_hasBackgroundLayer
+            text: i18n("Reversed color palette for items")
         }
-        QQC2.Slider {
-            id: reversedBackgroundOpacitySlider
-            enabled: cfg_hasReversedColors
-            from: 0
-            to: 100
-            Kirigami.FormData.label: i18n("Background opacity:")
+
+        RowLayout {
+            QQC2.Slider {
+                id: reversedBackgroundRadiusSlider
+                enabled: cfg_hasBackgroundLayer
+                from: 0
+                to: 50
+                stepSize: 1
+            }
+            QQC2.Label {
+                text: cfg_reversedBackgroundRadius + "% radius"
+            }
+        }
+
+        RowLayout {
+            QQC2.Slider {
+                id: reversedBackgroundOpacitySlider
+                enabled: cfg_hasBackgroundLayer
+                from: 0
+                to: 100
+                stepSize: 1
+            }
+            QQC2.Label {
+                text: cfg_reversedBackgroundOpacity + "% opacity"
+            }
         }
 
         QQC2.Label {

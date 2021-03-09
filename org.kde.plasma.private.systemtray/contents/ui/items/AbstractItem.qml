@@ -113,7 +113,7 @@ PlasmaCore.ToolTipArea {
         active: !abstractItem.inHiddenLayout
                 && !labelVisible
                 && itemId.length > 0
-                && plasmoid.configuration.hasReversedColors
+                && plasmoid.configuration.hasBackgroundLayer
         sourceComponent: Rectangle{
             width: root.itemSize + Math.min(4, plasmoid.configuration.iconsSpacing)
             height: width

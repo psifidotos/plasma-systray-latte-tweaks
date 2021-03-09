@@ -36,7 +36,7 @@ PlasmaCore.ToolTipArea {
 
     Loader {
         anchors.centerIn: tooltip
-        active: plasmoid.configuration.hasReversedColors
+        active: plasmoid.configuration.hasBackgroundLayer
         sourceComponent: Rectangle{
             width: root.itemSize + Math.min(4, plasmoid.configuration.iconsSpacing)
             height: width
