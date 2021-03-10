@@ -122,8 +122,7 @@ PlasmaCore.ToolTipArea {
         id: colorizerLoader
         anchors.fill: parent
         active: (root.inLatte && root.inLatteCustomPalette)
-                || (plasmoid.configuration.hasBackgroundLayer
-                   && plasmoid.configuration.hasReversedColors)
+                || root.hasReversedColors
         z:1000
 
         sourceComponent: ColorOverlay {
@@ -131,10 +130,10 @@ PlasmaCore.ToolTipArea {
             source: arrowMouseArea
             color: {
                 if (root.inLatteCustomPalette) {
-                    return plasmoid.configuration.hasReversedColors ? latteBridge.palette.backgroundColor : latteBridge.palette.textColor
+                    return root.hasReversedColors ? latteBridge.palette.backgroundColor : latteBridge.palette.textColor
                 }
 
-                return plasmoid.configuration.hasReversedColors ? theme.backgroundColor : theme.textColor
+                return root.hasReversedColors ? theme.backgroundColor : theme.textColor
             }
         }
     }

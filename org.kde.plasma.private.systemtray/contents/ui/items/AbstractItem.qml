@@ -203,8 +203,7 @@ PlasmaCore.ToolTipArea {
                 && itemId.length > 0
                 && (plasmoid.configuration.blockedAutoColorItems.indexOf(itemId) < 0)
                 && ((root.inLatte && root.inLatteCustomPalette)
-                   || (plasmoid.configuration.hasBackgroundLayer
-                      && plasmoid.configuration.hasReversedColors))
+                   || root.hasReversedColors)
         z:1000
 
         sourceComponent: ColorOverlay {
@@ -212,10 +211,10 @@ PlasmaCore.ToolTipArea {
             source: iconContainer
             color: {
                 if (root.inLatte) {
-                    return plasmoid.configuration.hasReversedColors ? latteBridge.palette.backgroundColor : latteBridge.palette.textColor
+                    return root.hasReversedColors ? latteBridge.palette.backgroundColor : latteBridge.palette.textColor
                 }
 
-                return plasmoid.configuration.hasReversedColors ? theme.backgroundColor : "transparent"
+                return root.hasReversedColors ? theme.backgroundColor : "transparent"
             }
         }
     }

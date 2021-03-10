@@ -43,6 +43,8 @@ MouseArea {
     readonly property alias visibleLayout: tasksGrid
     readonly property alias hiddenLayout: expandedRepresentation.hiddenLayout
 
+    readonly property bool hasReversedColors: plasmoid.configuration.hasBackgroundLayer && plasmoid.configuration.hasReversedColors
+
     //! Latte Connection
     property QtObject latteBridge: null
     readonly property bool inLatte: latteBridge !== null
