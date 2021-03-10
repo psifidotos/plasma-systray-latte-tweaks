@@ -41,7 +41,7 @@ PlasmaCore.ToolTipArea {
             width: root.itemSize + Math.min(4, plasmoid.configuration.iconsSpacing)
             height: width
             radius: width * plasmoid.configuration.reversedBackgroundRadius/100
-            color: root.inLatte ? latteBridge.palette.textColor : theme.textColor
+            color: root.backgroundColor
             opacity: plasmoid.configuration.reversedBackgroundOpacity/100
         }
     }
@@ -128,13 +128,7 @@ PlasmaCore.ToolTipArea {
         sourceComponent: ColorOverlay {
             anchors.fill: parent
             source: arrowMouseArea
-            color: {
-                if (root.inLatteCustomPalette) {
-                    return root.hasReversedColors ? latteBridge.palette.backgroundColor : latteBridge.palette.textColor
-                }
-
-                return root.hasReversedColors ? theme.backgroundColor : theme.textColor
-            }
+            color: root.textColor
         }
     }
 
