@@ -43,6 +43,24 @@ MouseArea {
     readonly property alias visibleLayout: tasksGrid
     readonly property alias hiddenLayout: expandedRepresentation.hiddenLayout
 
+    readonly property bool hasReversedColors: plasmoid.configuration.hasBackgroundLayer && plasmoid.configuration.hasReversedColors
+
+    readonly property color backgroundColor: {
+        if (inLatteCustomPalette) {
+            return root.hasReversedColors? latteBridge.palette.textColor : latteBridge.palette.backgroundColor;
+        } else {
+            return root.hasReversedColors? theme.textColor : theme.backgroundColor;
+        }
+    }
+
+    readonly property color textColor: {
+        if (inLatteCustomPalette) {
+            return root.hasReversedColors ? latteBridge.palette.backgroundColor : latteBridge.palette.textColor;
+        } else {
+            return root.hasReversedColors ? theme.backgroundColor : "transparent";
+        }
+    }
+
     //! Latte Connection
     property QtObject latteBridge: null
     readonly property bool inLatte: latteBridge !== null

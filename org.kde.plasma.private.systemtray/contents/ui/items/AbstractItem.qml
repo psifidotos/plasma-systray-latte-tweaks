@@ -113,12 +113,13 @@ PlasmaCore.ToolTipArea {
         active: !abstractItem.inHiddenLayout
                 && !labelVisible
                 && itemId.length > 0
-                && plasmoid.configuration.hasReversedColors
+                && plasmoid.configuration.hasBackgroundLayer
         sourceComponent: Rectangle{
             width: root.itemSize + Math.min(4, plasmoid.configuration.iconsSpacing)
             height: width
-            radius: 2
-            color: root.inLatte ? latteBridge.palette.textColor : theme.textColor
+            radius: width * plasmoid.configuration.reversedBackgroundRadius/100
+            color: root.backgroundColor
+            opacity: plasmoid.configuration.reversedBackgroundOpacity/100
         }
     }
 
@@ -202,21 +203,13 @@ PlasmaCore.ToolTipArea {
                 && itemId.length > 0
                 && (plasmoid.configuration.blockedAutoColorItems.indexOf(itemId) < 0)
                 && ((root.inLatte && root.inLatteCustomPalette)
-                    || plasmoid.configuration.hasReversedColors)
-
-
+                   || root.hasReversedColors)
         z:1000
 
         sourceComponent: ColorOverlay {
             anchors.fill: parent
             source: iconContainer
-            color: {
-                if (root.inLatte) {
-                    return plasmoid.configuration.hasReversedColors ? latteBridge.palette.backgroundColor : latteBridge.palette.textColor
-                }
-
-                return plasmoid.configuration.hasReversedColors ? theme.backgroundColor : "transparent"
-            }
+            color: root.textColor
         }
     }
 

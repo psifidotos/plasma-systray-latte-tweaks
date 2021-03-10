@@ -31,7 +31,10 @@ ColumnLayout {
     id: generalPage
     property bool cfg_scaleIconsToFit
 
+    property alias cfg_hasBackgroundLayer: hasBackgroundLayerChk.checked
     property alias cfg_hasReversedColors: reversedColorsChk.checked
+    property alias cfg_reversedBackgroundRadius: reversedBackgroundRadiusSlider.value
+    property alias cfg_reversedBackgroundOpacity: reversedBackgroundOpacitySlider.value
     property alias cfg_iconsSpacing: iconsSpacing.value
     property alias cfg_internalMainHighlightEnabled: internalHighlightChk.checked
 
@@ -73,9 +76,41 @@ ColumnLayout {
         }
 
         QtControls.CheckBox {
+            id: hasBackgroundLayerChk
+            text: i18n("Add a background layer to items")
+            Kirigami.FormData.label: i18n("Background:")
+        }
+
+        QtControls.CheckBox {
             id: reversedColorsChk
+            enabled: cfg_hasBackgroundLayer
             text: i18n("Reversed color palette for items")
-            Kirigami.FormData.label: i18n("Colors:")
+        }
+
+        RowLayout {
+            QQC2.Slider {
+                id: reversedBackgroundRadiusSlider
+                enabled: cfg_hasBackgroundLayer
+                from: 0
+                to: 50
+            }
+            QQC2.Label {
+                text: Math.round(cfg_reversedBackgroundRadius) + "% radius"
+                enabled: reversedBackgroundRadiusSlider.enabled
+            }
+        }
+
+        RowLayout {
+            QQC2.Slider {
+                id: reversedBackgroundOpacitySlider
+                enabled: cfg_hasBackgroundLayer
+                from: 0
+                to: 100
+            }
+            QQC2.Label {
+                text: Math.round(cfg_reversedBackgroundOpacity) + "% opacity"
+                enabled: reversedBackgroundOpacitySlider.enabled
+            }
         }
 
         QQC2.Label {

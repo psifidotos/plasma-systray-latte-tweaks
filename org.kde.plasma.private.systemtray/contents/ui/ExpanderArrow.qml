@@ -36,12 +36,13 @@ PlasmaCore.ToolTipArea {
 
     Loader {
         anchors.centerIn: tooltip
-        active: plasmoid.configuration.hasReversedColors
+        active: plasmoid.configuration.hasBackgroundLayer
         sourceComponent: Rectangle{
             width: root.itemSize + Math.min(4, plasmoid.configuration.iconsSpacing)
             height: width
-            radius: 2
-            color: root.inLatte ? latteBridge.palette.textColor : theme.textColor
+            radius: width * plasmoid.configuration.reversedBackgroundRadius/100
+            color: root.backgroundColor
+            opacity: plasmoid.configuration.reversedBackgroundOpacity/100
         }
     }
 
@@ -121,19 +122,13 @@ PlasmaCore.ToolTipArea {
         id: colorizerLoader
         anchors.fill: parent
         active: (root.inLatte && root.inLatteCustomPalette)
-                || plasmoid.configuration.hasReversedColors
+                || root.hasReversedColors
         z:1000
 
         sourceComponent: ColorOverlay {
             anchors.fill: parent
             source: arrowMouseArea
-            color: {
-                if (root.inLatteCustomPalette) {
-                    return plasmoid.configuration.hasReversedColors ? latteBridge.palette.backgroundColor : latteBridge.palette.textColor
-                }
-
-                return plasmoid.configuration.hasReversedColors ? theme.backgroundColor : theme.textColor
-            }
+            color: root.textColor
         }
     }
 
