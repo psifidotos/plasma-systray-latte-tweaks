@@ -93,10 +93,9 @@ ColumnLayout {
                 enabled: cfg_hasBackgroundLayer
                 from: 0
                 to: 50
-                stepSize: 1
             }
             QQC2.Label {
-                text: cfg_reversedBackgroundRadius + "% radius"
+                text: Math.round(cfg_reversedBackgroundRadius) + "% radius"
             }
         }
 
@@ -106,10 +105,9 @@ ColumnLayout {
                 enabled: cfg_hasBackgroundLayer
                 from: 0
                 to: 100
-                stepSize: 1
             }
             QQC2.Label {
-                text: cfg_reversedBackgroundOpacity + "% opacity"
+                text: Math.round(cfg_reversedBackgroundOpacity) + "% opacity"
             }
         }
 
