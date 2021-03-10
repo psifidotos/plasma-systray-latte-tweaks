@@ -96,6 +96,7 @@ ColumnLayout {
             }
             QQC2.Label {
                 text: Math.round(cfg_reversedBackgroundRadius) + "% radius"
+                enabled: reversedBackgroundRadiusSlider.enabled
             }
         }
 
@@ -108,6 +109,7 @@ ColumnLayout {
             }
             QQC2.Label {
                 text: Math.round(cfg_reversedBackgroundOpacity) + "% opacity"
+                enabled: reversedBackgroundOpacitySlider.enabled
             }
         }
 
