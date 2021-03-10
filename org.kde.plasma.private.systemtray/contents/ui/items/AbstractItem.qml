@@ -203,9 +203,8 @@ PlasmaCore.ToolTipArea {
                 && itemId.length > 0
                 && (plasmoid.configuration.blockedAutoColorItems.indexOf(itemId) < 0)
                 && ((root.inLatte && root.inLatteCustomPalette)
-                    || plasmoid.configuration.hasReversedColors)
-
-
+                   || (plasmoid.configuration.hasBackgroundLayer
+                      && plasmoid.configuration.hasReversedColors))
         z:1000
 
         sourceComponent: ColorOverlay {

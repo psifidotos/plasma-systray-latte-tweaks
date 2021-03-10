@@ -122,7 +122,8 @@ PlasmaCore.ToolTipArea {
         id: colorizerLoader
         anchors.fill: parent
         active: (root.inLatte && root.inLatteCustomPalette)
-                || plasmoid.configuration.hasReversedColors
+                || (plasmoid.configuration.hasBackgroundLayer
+                   && plasmoid.configuration.hasReversedColors)
         z:1000
 
         sourceComponent: ColorOverlay {
