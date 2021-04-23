@@ -45,6 +45,8 @@ MouseArea {
 
     readonly property bool hasReversedColors: plasmoid.configuration.hasBackgroundLayer && plasmoid.configuration.hasReversedColors
 
+    readonly property int constraintHints: plasmoid.configuration.canFillThickness ? PlasmaCore.Types.CanFillArea : PlasmaCore.Types.NoHint
+
     readonly property color backgroundColor: {
         if (inLatteCustomPalette) {
             return root.hasReversedColors? latteBridge.palette.textColor : latteBridge.palette.backgroundColor;

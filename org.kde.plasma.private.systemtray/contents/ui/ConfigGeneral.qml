@@ -31,6 +31,7 @@ ColumnLayout {
     id: generalPage
     property bool cfg_scaleIconsToFit
 
+    property alias cfg_canFillThickness: canFillThicknessChk.checked
     property alias cfg_hasBackgroundLayer: hasBackgroundLayerChk.checked
     property alias cfg_hasReversedColors: reversedColorsChk.checked
     property alias cfg_reversedBackgroundRadius: reversedBackgroundRadiusSlider.value
@@ -69,7 +70,6 @@ ColumnLayout {
 
             Kirigami.FormData.label: i18n("Spacing:")
         }
-
 
         QQC2.Label {
             text: " "
@@ -118,9 +118,14 @@ ColumnLayout {
         }
 
         QtControls.CheckBox {
+            id: canFillThicknessChk
+            text: i18n("Fill all panel thickness with no margins")
+            Kirigami.FormData.label: i18n("Behavior:")
+        }
+
+        QtControls.CheckBox {
             id: internalHighlightChk
             text: i18n("Internal highlight for main popup window is enabled")
-            Kirigami.FormData.label: i18n("Highlight:")
         }
     }
 }

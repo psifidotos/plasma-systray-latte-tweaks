@@ -33,6 +33,8 @@ Item {
     Plasmoid.preferredRepresentation: Plasmoid.fullRepresentation
     Plasmoid.status: internalSystray ? internalSystray.status : PlasmaCore.Types.UnknownStatus
 
+    Plasmoid.constraintHints: internalSystrayMainItem ? internalSystrayMainItem.constraintHints : PlasmaCore.Types.NoHint
+
     //synchronize state between SystemTray and wrapping Applet
     Plasmoid.onExpandedChanged: {
         if (internalSystray) {
@@ -47,6 +49,7 @@ Item {
     }
 
     property Item internalSystray: null
+    property Item internalSystrayMainItem: null
 
     //! Latte Connection
     property QtObject latteBridge: null
@@ -86,6 +89,7 @@ Item {
 
         for(var i=0; i<level0.length; ++i){
             if (level0[i].hasOwnProperty("latteBridge")) {
+                internalSystrayMainItem = level0[i];
                 level0[i].latteBridge = root.latteBridge;
                 break;
             }
@@ -93,6 +97,7 @@ Item {
             var level1 = level0[i].children;
             for(var j=0; j<level1.length; ++j){
                 if (level1[j].hasOwnProperty("latteBridge")) {
+                    internalSystrayMainItem = level1[j];
                     level1[j].latteBridge = root.latteBridge;
                     break;
                 }
