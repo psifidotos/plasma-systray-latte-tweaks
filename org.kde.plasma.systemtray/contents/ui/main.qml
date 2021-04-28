@@ -41,6 +41,7 @@ Item {
             internalSystray.expanded = plasmoid.expanded
         }
     }
+
     Connections {
         target: internalSystray
         function onExpandedChanged() {
@@ -54,9 +55,17 @@ Item {
     //! Latte Connection
     property QtObject latteBridge: null
     readonly property bool inLatte: latteBridge !== null
+    readonly property Item containmentVisualParent: root.parent && root.parent.parent ? root.parent.parent.parent : null
 
     onLatteBridgeChanged: checkAndUpdateInternalLatteBridge();
     onInternalSystrayChanged: checkAndUpdateInternalLatteBridge();
+
+    Binding {
+        target: internalSystrayMainItem
+        property: "containmentVisualParent"
+        value: root.containmentVisualParent
+    }
+
     //!
 
     Component.onCompleted: {

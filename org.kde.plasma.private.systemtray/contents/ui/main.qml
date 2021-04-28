@@ -41,7 +41,10 @@ MouseArea {
     readonly property alias systemTrayState: systemTrayState
     readonly property alias itemSize: tasksGrid.itemSize
     readonly property alias visibleLayout: tasksGrid
-    readonly property alias hiddenLayout: expandedRepresentation.hiddenLayout
+
+    property Item expandedRepresentation: null //set by the Dialog
+    property Item hiddenLayout: null //set by the Dialog
+    property Item containmentVisualParent: null //set but parent applet
 
     readonly property bool hasReversedColors: plasmoid.configuration.hasBackgroundLayer && plasmoid.configuration.hasReversedColors
 
@@ -248,26 +251,9 @@ MouseArea {
     }
 
     //Main popup
-    PlasmaCore.Dialog {
+    Loader {
         id: dialog
-        visualParent: root
-        flags: Qt.WindowStaysOnTopHint
-        location: plasmoid.location
-        hideOnWindowDeactivate: !plasmoid.configuration.pin
-        visible: systemTrayState.expanded
-
-        onVisibleChanged: {
-            systemTrayState.expanded = visible
-        }
-        mainItem: ExpandedRepresentation {
-            id: expandedRepresentation
-
-            Keys.onEscapePressed: {
-                systemTrayState.expanded = false
-            }
-
-            LayoutMirroring.enabled: Qt.application.layoutDirection === Qt.RightToLeft
-            LayoutMirroring.childrenInherit: true
-        }
+        active: true
+        source: root.inLatte ? "dialogs/LatteCoreDialog.qml" : "dialogs/PlasmaCoreDialog.qml"
     }
 }
