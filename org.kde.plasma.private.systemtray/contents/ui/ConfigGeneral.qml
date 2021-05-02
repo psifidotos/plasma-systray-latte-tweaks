@@ -98,7 +98,7 @@ ColumnLayout {
 
         QtControls.CheckBox {
             id: hasBackgroundLayerChk
-            text: i18n("Add a background layer to items")
+            text: i18n("Add background layer to items")
             Kirigami.FormData.label: i18n("Background:")
         }
 
