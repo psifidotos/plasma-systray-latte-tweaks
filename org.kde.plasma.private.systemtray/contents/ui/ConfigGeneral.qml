@@ -109,26 +109,26 @@ ColumnLayout {
         }
 
         RowLayout {
+            enabled: cfg_hasBackgroundLayer
             QQC2.Slider {
                 id: reversedBackgroundRadiusSlider
-                enabled: cfg_hasBackgroundLayer
                 from: 0
                 to: 50
             }
-            QQC2.Label {
+            QtControls.Label {
                 text: Math.round(cfg_reversedBackgroundRadius) + "% radius"
                 enabled: reversedBackgroundRadiusSlider.enabled
             }
         }
 
         RowLayout {
+            enabled: cfg_hasBackgroundLayer
             QQC2.Slider {
                 id: reversedBackgroundOpacitySlider
-                enabled: cfg_hasBackgroundLayer
                 from: 0
                 to: 100
             }
-            QQC2.Label {
+            QtControls.Label {
                 text: Math.round(cfg_reversedBackgroundOpacity) + "% opacity"
                 enabled: reversedBackgroundOpacitySlider.enabled
             }
