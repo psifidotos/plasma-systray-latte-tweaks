@@ -60,6 +60,11 @@
       <default>70</default>
     </entry>
 
+    <entry name="maxLines" type="Int">
+      <label>Maximum Lines to use for the Grid</label>
+      <default>2</default>
+    </entry>
+    
     <entry name="internalMainHighlightEnabled" type="Bool">
       <label>internal main highlight state</label>
       <default>true</default>

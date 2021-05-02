@@ -34,6 +34,7 @@ ColumnLayout {
     property alias cfg_canFillThickness: canFillThicknessChk.checked
     property alias cfg_hasBackgroundLayer: hasBackgroundLayerChk.checked
     property alias cfg_hasReversedColors: reversedColorsChk.checked
+    property alias cfg_maxLines: maxLinesSpn.value
     property alias cfg_reversedBackgroundRadius: reversedBackgroundRadiusSlider.value
     property alias cfg_reversedBackgroundOpacity: reversedBackgroundOpacitySlider.value
     property alias cfg_iconsSpacing: iconsSpacing.value
@@ -70,6 +71,26 @@ ColumnLayout {
 
             Kirigami.FormData.label: i18n("Spacing:")
         }
+
+        QQC2.Label {
+            text: " "
+        }
+
+        RowLayout {
+            Kirigami.FormData.label: i18n("Maximum:")
+            enabled: !cfg_scaleIconsToFit
+
+            QtControls.SpinBox{
+                id: maxLinesSpn
+                minimumValue: 1
+                maximumValue: 5
+            }
+
+            QtControls.Label {
+                text: maxLinesSpn.value<=1 ? i18nc("one line", "line is used to distribute applets") : i18nc("multiple lines","lines are used to distribute applets")
+            }
+        }
+
 
         QQC2.Label {
             text: " "

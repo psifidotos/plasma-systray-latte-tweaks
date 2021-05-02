@@ -195,7 +195,13 @@ MouseArea {
 
             readonly property int gridThickness: root.vertical ? root.width : root.height
             // Should change to 2 rows/columns on a 56px panel (in standard DPI)
-            readonly property int thicknessLines: autoSize ? 1 : Math.max(1, Math.floor(gridThickness / smallIconSize))
+            readonly property int thicknessLines: {
+                if (autoSize) {
+                    return 1;
+                }
+
+                return Math.min(plasmoid.configuration.maxLines, Math.max(1, Math.floor(gridThickness / smallIconSize)));
+            }
             readonly property int lengthLines: Math.ceil(count / thicknessLines)
 
             model: PlasmaCore.SortFilterModel {
