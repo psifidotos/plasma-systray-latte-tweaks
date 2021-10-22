@@ -22,6 +22,7 @@ ColumnLayout {
     property var cfg_hiddenItems: []
     property var cfg_extraItems: []
     property alias cfg_showAllItems: showAllCheckBox.checked
+    property var cfg_blockedAutoColorItems: []
 
     QQC2.CheckBox {
         id: showAllCheckBox
@@ -59,8 +60,10 @@ ColumnLayout {
         ListView {
             id: itemsList
 
-            property var visibilityColumnWidth: Kirigami.Units.gridUnit
-            property var keySequenceColumnWidth: Kirigami.Units.gridUnit
+            property var autoColorColumnWidth: units.gridUnit
+            property var visibilityColumnWidth: units.gridUnit
+            property var keySequenceColumnWidth: units.gridUnit
+
 
             clip: true
 
@@ -81,6 +84,12 @@ ColumnLayout {
                         level: 2
                         Layout.preferredWidth: itemsList.visibilityColumnWidth
                         Component.onCompleted: itemsList.visibilityColumnWidth = Math.max(implicitWidth, itemsList.visibilityColumnWidth)
+                    }
+                    Kirigami.Heading {
+                       text: i18n("Auto Color")
+                        level: 2
+                        Layout.preferredWidth: itemsList.autoColorColumnWidth
+                        Component.onCompleted: itemsList.autoColorColumnWidth = Math.max(implicitWidth, itemsList.autoColorColumnWidth)
                     }
                     Kirigami.Heading {
                         text: i18n("Keyboard Shortcut")
@@ -237,6 +246,36 @@ ColumnLayout {
                             }
                         }
                     }
+
+                    Item{
+                        implicitWidth: itemsList.autoColorColumnWidth + 10
+                        height: autoColorChkBox.height
+
+                        QQC2.CheckBox {
+                            id: autoColorChkBox
+                            anchors.centerIn: parent
+
+                            checked: cfg_blockedAutoColorItems.indexOf(model.itemId) === -1
+
+                            onToggled: {
+                                var blockedIndex = cfg_blockedAutoColorItems.indexOf(model.itemId);
+                                var updated = false;
+
+                                if (checked && blockedIndex >= 0) {
+                                    cfg_blockedAutoColorItems.splice(blockedIndex, 1);
+                                    updated = true;
+                                } else if (!checked && blockedIndex === -1) {
+                                    cfg_blockedAutoColorItems.push(model.itemId);
+                                    updated = true;
+                                }
+
+                                if (updated) {
+                                    iconsPage.configurationChanged();
+                                }
+                            }
+                        }
+                    }
+
                     KQC.KeySequenceItem {
                         id: keySequenceItem
                         Layout.minimumWidth: itemsList.keySequenceColumnWidth
