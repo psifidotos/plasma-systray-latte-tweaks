@@ -1,22 +1,9 @@
 /*
- *   Copyright 2016 Marco Martin <mart@kde.org>
- *   Copyright 2020 Nate Graham <nate@kde.org>
- *
- *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU Library General Public License as
- *   published by the Free Software Foundation; either version 2, or
- *   (at your option) any later version.
- *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU Library General Public License for more details
- *
- *   You should have received a copy of the GNU Library General Public
- *   License along with this program; if not, write to the
- *   Free Software Foundation, Inc.,
- *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
+    SPDX-FileCopyrightText: 2016 Marco Martin <mart@kde.org>
+    SPDX-FileCopyrightText: 2020 Nate Graham <nate@kde.org>
+
+    SPDX-License-Identifier: LGPL-2.0-or-later
+*/
 
 import QtQuick 2.12
 import QtQuick.Layouts 1.12
@@ -31,8 +18,8 @@ import org.kde.plasma.extras 2.0 as PlasmaExtras
 Item {
     id: popup
     //set width/height to avoid useless Dialog resize
-    readonly property int defaultWidth: units.gridUnit * 24
-    readonly property int defaultHeight: units.gridUnit * 24
+    readonly property int defaultWidth: PlasmaCore.Units.gridUnit * 24
+    readonly property int defaultHeight: PlasmaCore.Units.gridUnit * 24
 
     width: defaultWidth
     Layout.minimumWidth: defaultWidth
@@ -55,6 +42,9 @@ Item {
             right: parent.right
         }
         height: trayHeading.height + bottomPadding + container.headingHeight
+        Behavior on height {
+            NumberAnimation { duration: PlasmaCore.Units.shortDuration/2; easing.type: Easing.InOutQuad }
+        }
     }
 
     // Main content layout
@@ -71,14 +61,14 @@ Item {
 
             PlasmaComponents.ToolButton {
                 id: backButton
-                visible: systemTrayState.activeApplet && systemTrayState.activeApplet.expanded && (hiddenItemsView.itemCount > 0)
+                visible: systemTrayState.activeApplet && systemTrayState.activeApplet.expanded && (hiddenLayout.itemCount > 0)
                 icon.name: LayoutMirroring.enabled ? "go-previous-symbolic-rtl" : "go-previous-symbolic"
                 onClicked: systemTrayState.setActiveApplet(null)
             }
 
             PlasmaExtras.Heading {
                 Layout.fillWidth: true
-                leftPadding: systemTrayState.activeApplet ? 0 : units.smallSpacing * 2
+                leftPadding: systemTrayState.activeApplet ? 0 : PlasmaCore.Units.smallSpacing * 2
 
                 level: 1
                 text: systemTrayState.activeApplet ? systemTrayState.activeApplet.title : i18n("Status and Notifications")
@@ -89,36 +79,9 @@ Item {
                 visible: visibleActions > 0
                 checked: visibleActions > 1 ? configMenu.status !== PC2.DialogStatus.Closed : singleAction && singleAction.checked
                 property QtObject applet: systemTrayState.activeApplet || plasmoid
-                onAppletChanged: {
-                    configMenu.clearMenuItems();
-                    updateVisibleActions();
-                }
-                property int visibleActions: 0
-                property QtObject singleAction
+                property int visibleActions: menuItemFactory.count
+                property QtObject singleAction: visibleActions === 1 && menuItemFactory.object ? menuItemFactory.object.action : null
 
-                function updateVisibleActions() {
-                    let newSingleAction = null;
-                    let newVisibleActions = 0;
-                    for (let i in applet.contextualActions) {
-                        let action = applet.contextualActions[i];
-                        if (action.visible && action !== actionsButton.applet.action("configure")) {
-                            newVisibleActions++;
-                            newSingleAction = action;
-                            action.changed.connect(() => {updateVisibleActions()});
-                        }
-                    }
-                    if (newVisibleActions > 1) {
-                        newSingleAction = null;
-                    }
-                    visibleActions = newVisibleActions;
-                    singleAction = newSingleAction;
-                }
-                Connections {
-                    target: actionsButton.applet
-                    function onContextualActionsChanged() {
-                        Qt.callLater(actionsButton.updateVisibleActions);
-                    }
-                }
                 icon.name: "application-menu"
                 checkable: visibleActions > 1 || (singleAction && singleAction.checkable)
                 contentItem.opacity: visibleActions > 1
@@ -156,15 +119,24 @@ Item {
                 }
 
                 Instantiator {
-                    model: actionsButton.applet.contextualActions
+                    id: menuItemFactory
+                    model: {
+                        configMenu.clearMenuItems();
+                        let actions = [];
+                        for (let i in actionsButton.applet.contextualActions) {
+                            const action = actionsButton.applet.contextualActions[i];
+                            if (action.visible && action !== actionsButton.applet.action("configure")) {
+                                actions.push(action);
+                            }
+                        }
+                        return actions;
+                    }
                     delegate: PC2.MenuItem {
                         id: menuItem
                         action: modelData
                     }
                     onObjectAdded: {
-                        if (object !== actionsButton.applet.action("configure")) {
-                            configMenu.addMenuItem(object);
-                        }
+                        configMenu.addMenuItem(object);
                     }
                 }
             }
@@ -194,7 +166,7 @@ Item {
             id: hiddenItemsView
             Layout.fillWidth: true
             Layout.fillHeight: true
-            Layout.topMargin: units.smallSpacing
+            Layout.topMargin: PlasmaCore.Units.smallSpacing
             visible: !systemTrayState.activeApplet
         }
 

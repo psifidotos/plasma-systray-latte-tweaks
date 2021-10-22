@@ -1,23 +1,10 @@
 /*
- *   Copyright 2016 Marco Martin <mart@kde.org>
- *   Copyright 2020 Konrad Materka <materka@gmail.com>
- *   Copyright 2020 Nate Graham <nate@kde.org>
- *
- *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU Library General Public License as
- *   published by the Free Software Foundation; either version 2, or
- *   (at your option) any later version.
- *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU Library General Public License for more details
- *
- *   You should have received a copy of the GNU Library General Public
- *   License along with this program; if not, write to the
- *   Free Software Foundation, Inc.,
- *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
+    SPDX-FileCopyrightText: 2016 Marco Martin <mart@kde.org>
+    SPDX-FileCopyrightText: 2020 Konrad Materka <materka@gmail.com>
+    SPDX-FileCopyrightText: 2020 Nate Graham <nate@kde.org>
+
+    SPDX-License-Identifier: LGPL-2.0-or-later
+*/
 
 import QtQuick 2.1
 import QtQuick.Layouts 1.1
@@ -31,7 +18,6 @@ MouseArea {
     id: hiddenTasksView
 
     property alias layout: hiddenTasks
-    readonly property alias itemCount: hiddenTasks.itemCount
 
     hoverEnabled: true
     onExited: hiddenTasks.currentIndex = -1
@@ -50,18 +36,16 @@ MouseArea {
             readonly property int rows: 4
             readonly property int columns: 4
 
-            cellWidth: hiddenTasks.width / hiddenTasks.columns
-            cellHeight: hiddenTasks.height / hiddenTasks.rows
+            cellWidth: Math.floor(hiddenTasks.width / hiddenTasks.columns)
+            cellHeight: Math.floor(hiddenTasks.height / hiddenTasks.rows)
 
             currentIndex: -1
             highlight: PlasmaComponents.Highlight {}
             highlightMoveDuration: 0
 
-            property int itemCount: model.rowCount()
+            pixelAligned: true
 
-            Component.onCompleted: {
-                itemCount = model.rowCount()
-            }
+            readonly property int itemCount: model.count
 
             model: PlasmaCore.SortFilterModel {
                 sourceModel: plasmoid.nativeInterface.systemTrayModel
@@ -72,15 +56,5 @@ MouseArea {
             }
             delegate: ItemLoader {}
         }
-    }
-
-    Connections {
-        target: hiddenTasks.model
-        // hiddenTasks.count is not updated when ListView is hidden and is not rendered
-        // manually update itemCount so that expander arrow hides/shows itself correctly
-        function onModelReset() {hiddenTasks.itemCount = hiddenTasks.model.rowCount()}
-        function onRowsInserted() {hiddenTasks.itemCount = hiddenTasks.model.rowCount()}
-        function onRowsRemoved() {hiddenTasks.itemCount = hiddenTasks.model.rowCount()}
-        function onLayoutChanged() {hiddenTasks.itemCount = hiddenTasks.model.rowCount()}
     }
 }

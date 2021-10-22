@@ -1,21 +1,8 @@
 /*
- *   Copyright 2015 Marco Martin <mart@kde.org>
- *
- *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU Library General Public License as
- *   published by the Free Software Foundation; either version 2, or
- *   (at your option) any later version.
- *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU Library General Public License for more details
- *
- *   You should have received a copy of the GNU Library General Public
- *   License along with this program; if not, write to the
- *   Free Software Foundation, Inc.,
- *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
+    SPDX-FileCopyrightText: 2015 Marco Martin <mart@kde.org>
+
+    SPDX-License-Identifier: LGPL-2.0-or-later
+*/
 
 import QtQuick 2.4
 import QtQuick.Layouts 1.1
@@ -29,8 +16,8 @@ StackView {
     id: mainStack
     focus: true
 
-    Layout.minimumWidth: units.gridUnit * 12
-    Layout.minimumHeight: units.gridUnit * 12
+    Layout.minimumWidth: PlasmaCore.Units.gridUnit * 12
+    Layout.minimumHeight: PlasmaCore.Units.gridUnit * 12
 
     readonly property Item activeApplet: systemTrayState.activeApplet
 
@@ -71,6 +58,13 @@ StackView {
             mainStack.replace(emptyPage);
         }
     }
+
+    onCurrentItemChanged: {
+        if (currentItem !== null && plasmoid.expanded) {
+            currentItem.forceActiveFocus();
+        }
+    }
+
     Connections {
         target: plasmoid
         function onAppletRemoved(applet) {
@@ -85,24 +79,46 @@ StackView {
     }
 
     delegate: StackViewDelegate {
+        id: transitioner
         function transitionFinished(properties) {
             properties.exitItem.opacity = 1
+        }
+        property bool goingLeft: {
+            const unFlipped = systemTrayState.oldVisualIndex < systemTrayState.newVisualIndex
+
+            if (Qt.application.layoutDirection == Qt.LeftToRight) {
+                return unFlipped
+            } else {
+                return !unFlipped
+            }
         }
         replaceTransition: StackViewTransition {
             ParallelAnimation {
                 PropertyAnimation {
                     target: enterItem
                     property: "x"
-                    from: enterItem.width
+                    from: root.vertical ? 0 : (transitioner.goingLeft ? enterItem.width : -enterItem.width)
                     to: 0
-                    duration: units.longDuration
+                    easing.type: Easing.InOutQuad
+                    duration: PlasmaCore.Units.shortDuration
                 }
-                PropertyAnimation {
-                    target: enterItem
-                    property: "opacity"
-                    from: 0
-                    to: 1
-                    duration: units.longDuration
+                SequentialAnimation {
+                    PropertyAction {
+                        target: enterItem
+                        property: "opacity"
+                        value: 0
+                    }
+                    PauseAnimation {
+                        duration: root.vertical ? (PlasmaCore.Units.shortDuration/2) : 0
+                    }
+                    PropertyAnimation {
+                        target: enterItem
+                        property: "opacity"
+                        from: 0
+                        to: 1
+                        easing.type: Easing.InOutQuad
+                        duration: (PlasmaCore.Units.shortDuration/2)
+                    }
                 }
             }
             ParallelAnimation {
@@ -110,15 +126,17 @@ StackView {
                     target: exitItem
                     property: "x"
                     from: 0
-                    to: -exitItem.width
-                    duration: units.longDuration
+                    to: root.vertical ? 0 : (transitioner.goingLeft ? -exitItem.width : exitItem.width)
+                    easing.type: Easing.InOutQuad
+                    duration: PlasmaCore.Units.shortDuration
                 }
                 PropertyAnimation {
                     target: exitItem
                     property: "opacity"
                     from: 1
                     to: 0
-                    duration: units.longDuration
+                    easing.type: Easing.InOutQuad
+                    duration: PlasmaCore.Units.shortDuration/2
                 }
             }
         }

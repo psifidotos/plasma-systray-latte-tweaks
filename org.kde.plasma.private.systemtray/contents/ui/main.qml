@@ -1,22 +1,9 @@
 /*
- *   Copyright 2011 Marco Martin <mart@kde.org>
- *   Copyright 2020 Konrad Materka <materka@gmail.com>
- *
- *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU Library General Public License as
- *   published by the Free Software Foundation; either version 2, or
- *   (at your option) any later version.
- *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU Library General Public License for more details
- *
- *   You should have received a copy of the GNU Library General Public
- *   License along with this program; if not, write to the
- *   Free Software Foundation, Inc.,
- *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
+    SPDX-FileCopyrightText: 2011 Marco Martin <mart@kde.org>
+    SPDX-FileCopyrightText: 2020 Konrad Materka <materka@gmail.com>
+
+    SPDX-License-Identifier: LGPL-2.0-or-later
+*/
 
 import QtQuick 2.5
 import QtQuick.Layouts 1.1
@@ -42,6 +29,7 @@ MouseArea {
     readonly property alias itemSize: tasksGrid.itemSize
     readonly property alias visibleLayout: tasksGrid
     readonly property alias hiddenLayout: expandedRepresentation.hiddenLayout
+    readonly property bool oneRowOrColumn: tasksGrid.rowsOrColumns == 1
 
     onWheel: {
         // Don't propagate unhandled wheel events
@@ -60,6 +48,7 @@ MouseArea {
 
     CurrentItemHighLight {
         location: plasmoid.location
+        parent: root
     }
 
     DnD.DropArea {
@@ -122,7 +111,10 @@ MouseArea {
 
             // The icon size to display when not using the auto-scaling setting
             readonly property int smallIconSize: PlasmaCore.Units.iconSizes.smallMedium
-            readonly property bool autoSize: plasmoid.configuration.scaleIconsToFit
+
+            // Automatically use autoSize setting when in tablet mode, if it's
+            // not already being used
+            readonly property bool autoSize: plasmoid.configuration.scaleIconsToFit || Kirigami.Settings.tabletMode
 
             readonly property int gridThickness: root.vertical ? root.width : root.height
             // Should change to 2 rows/columns on a 56px panel (in standard DPI)
@@ -132,7 +124,7 @@ MouseArea {
             readonly property int smallSizeCellLength: gridThickness < smallIconSize ? smallIconSize : smallIconSize + PlasmaCore.Units.smallSpacing * 2
             cellHeight: {
                 if (root.vertical) {
-                    return autoSize ? root.width : smallSizeCellLength
+                    return autoSize ? root.width + PlasmaCore.Units.smallSpacing : smallSizeCellLength
                 } else {
                     return autoSize ? root.height : Math.floor(root.height / rowsOrColumns)
                 }
@@ -141,7 +133,7 @@ MouseArea {
                 if (root.vertical) {
                     return autoSize ? root.width : Math.floor(root.width / rowsOrColumns)
                 } else {
-                    return autoSize ? root.height : smallSizeCellLength
+                    return autoSize ? root.height + PlasmaCore.Units.smallSpacing : smallSizeCellLength
                 }
             }
 
@@ -149,8 +141,6 @@ MouseArea {
             implicitHeight: root.vertical ? cellHeight * Math.ceil(count / rowsOrColumns) : root.height
             implicitWidth: !root.vertical ? cellWidth * Math.ceil(count / rowsOrColumns) : root.width
 
-            // Used only by AbstractItem, but it's easiest to keep it here since it
-            // uses dimensions from this item to calculate the final value
             readonly property int itemSize: {
                 if (autoSize) {
                     const size = Math.min(implicitWidth / rowsOrColumns, implicitHeight / rowsOrColumns)
@@ -206,6 +196,8 @@ MouseArea {
             id: expander
             Layout.fillWidth: vertical
             Layout.fillHeight: !vertical
+            Layout.alignment: vertical ? Qt.AlignVCenter : Qt.AlignHCenter
+            iconSize: tasksGrid.itemSize
             visible: root.hiddenLayout.itemCount > 0
         }
     }
@@ -227,6 +219,27 @@ MouseArea {
 
             Keys.onEscapePressed: {
                 systemTrayState.expanded = false
+            }
+
+            // Draws a line between the applet dialog and the panel
+            PlasmaCore.SvgItem {
+                anchors {
+                    top: plasmoid.location == PlasmaCore.Types.BottomEdge ? undefined : parent.top
+                    left: plasmoid.location == PlasmaCore.Types.RightEdge ? undefined : parent.left
+                    right: plasmoid.location == PlasmaCore.Types.LeftEdge ? undefined : parent.right
+                    bottom: plasmoid.location == PlasmaCore.Types.TopEdge ? undefined : parent.bottom
+                    topMargin: plasmoid.location == PlasmaCore.Types.BottomEdge ? undefined : -dialog.margins.top
+                    leftMargin: plasmoid.location == PlasmaCore.Types.RightEdge ? undefined : -dialog.margins.left
+                    rightMargin: plasmoid.location == PlasmaCore.Types.LeftEdge ? undefined : -dialog.margins.right
+                    bottomMargin: plasmoid.location == PlasmaCore.Types.TopEdge ? undefined : -dialog.margins.bottom
+                }
+                height: (plasmoid.location == PlasmaCore.Types.TopEdge || plasmoid.location == PlasmaCore.Types.BottomEdge) ? 1 : undefined
+                width: (plasmoid.location == PlasmaCore.Types.LeftEdge || plasmoid.location == PlasmaCore.Types.RightEdge) ? 1 : undefined
+                z: 999 /* Draw the line on top of the applet */
+                elementId: (plasmoid.location == PlasmaCore.Types.TopEdge || plasmoid.location == PlasmaCore.Types.BottomEdge) ? "horizontal-line" : "vertical-line"
+                svg: PlasmaCore.Svg {
+                    imagePath: "widgets/line"
+                }
             }
 
             LayoutMirroring.enabled: Qt.application.layoutDirection === Qt.RightToLeft

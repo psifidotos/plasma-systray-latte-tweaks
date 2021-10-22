@@ -1,23 +1,10 @@
 /*
- *   Copyright 2016 Marco Martin <mart@kde.org>
- *   Copyright 2020 Konrad Materka <materka@gmail.com>
- *   Copyright 2020 Nate Graham <nate@kde.org>
- *
- *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU Library General Public License as
- *   published by the Free Software Foundation; either version 2, or
- *   (at your option) any later version.
- *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU Library General Public License for more details
- *
- *   You should have received a copy of the GNU Library General Public
- *   License along with this program; if not, write to the
- *   Free Software Foundation, Inc.,
- *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
+    SPDX-FileCopyrightText: 2016 Marco Martin <mart@kde.org>
+    SPDX-FileCopyrightText: 2020 Konrad Materka <materka@gmail.com>
+    SPDX-FileCopyrightText: 2020 Nate Graham <nate@kde.org>
+
+    SPDX-License-Identifier: LGPL-2.0-or-later
+*/
 
 import QtQuick 2.2
 import QtQuick.Layouts 1.1
@@ -76,7 +63,7 @@ PlasmaCore.ToolTipArea {
         targetItem: iconContainer
         running: (abstractItem.status === PlasmaCore.Types.NeedsAttentionStatus ||
             abstractItem.status === PlasmaCore.Types.RequiresAttentionStatus ) &&
-            units.longDuration > 0
+            PlasmaCore.Units.longDuration > 0
     }
 
     function activated() {
@@ -91,7 +78,7 @@ PlasmaCore.ToolTipArea {
             target: iconContainer
             from: 1
             to: 0.5
-            duration: units.shortDuration
+            duration: PlasmaCore.Units.shortDuration
             easing.type: Easing.InQuad
         }
 
@@ -99,7 +86,7 @@ PlasmaCore.ToolTipArea {
             target: iconContainer
             from: 0.5
             to: 1
-            duration: units.shortDuration
+            duration: PlasmaCore.Units.shortDuration
             easing.type: Easing.OutQuad
         }
     }
@@ -111,7 +98,7 @@ PlasmaCore.ToolTipArea {
         acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
         onClicked: abstractItem.clicked(mouse)
         onPressed: {
-            abstractItem.hideToolTip()
+            abstractItem.hideImmediately()
             abstractItem.pressed(mouse)
         }
         onPressAndHold: {
@@ -134,22 +121,22 @@ PlasmaCore.ToolTipArea {
 
             property alias container: abstractItem
             property alias inVisibleLayout: abstractItem.inVisibleLayout
-            readonly property int size: abstractItem.inVisibleLayout ? root.itemSize : units.iconSizes.medium
+            readonly property int size: abstractItem.inVisibleLayout ? root.itemSize : PlasmaCore.Units.iconSizes.medium
 
             Layout.alignment: Qt.Bottom | Qt.AlignHCenter
             Layout.fillHeight: abstractItem.inHiddenLayout ? true : false
             implicitWidth: root.vertical && abstractItem.inVisibleLayout ? abstractItem.width : size
             implicitHeight: !root.vertical && abstractItem.inVisibleLayout ? abstractItem.height : size
-            Layout.topMargin: abstractItem.inHiddenLayout ? Math.round(units.smallSpacing * 1.5): 0
+            Layout.topMargin: abstractItem.inHiddenLayout ? Math.round(PlasmaCore.Units.smallSpacing * 1.5): 0
         }
         PlasmaComponents3.Label {
             id: label
 
             Layout.fillWidth: true
             Layout.fillHeight: abstractItem.inHiddenLayout ? true : false
-            Layout.leftMargin: abstractItem.inHiddenLayout ? units.smallSpacing : 0
-            Layout.rightMargin: abstractItem.inHiddenLayout ? units.smallSpacing : 0
-            Layout.bottomMargin: abstractItem.inHiddenLayout ? units.smallSpacing : 0
+            Layout.leftMargin: abstractItem.inHiddenLayout ? PlasmaCore.Units.smallSpacing : 0
+            Layout.rightMargin: abstractItem.inHiddenLayout ? PlasmaCore.Units.smallSpacing : 0
+            Layout.bottomMargin: abstractItem.inHiddenLayout ? PlasmaCore.Units.smallSpacing : 0
 
             visible: abstractItem.inHiddenLayout
 
@@ -162,7 +149,7 @@ PlasmaCore.ToolTipArea {
             opacity: visible ? 1 : 0
             Behavior on opacity {
                 NumberAnimation {
-                    duration: units.longDuration
+                    duration: PlasmaCore.Units.longDuration
                     easing.type: Easing.InOutQuad
                 }
             }
