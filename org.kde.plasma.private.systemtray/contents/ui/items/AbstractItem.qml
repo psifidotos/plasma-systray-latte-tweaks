@@ -11,6 +11,8 @@ import QtQuick.Layouts 1.1
 import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.components 3.0 as PlasmaComponents3
 
+import QtGraphicalEffects 1.0
+
 PlasmaCore.ToolTipArea {
     id: abstractItem
 
@@ -22,6 +24,7 @@ PlasmaCore.ToolTipArea {
     property string itemId
     property alias text: label.text
     property alias iconContainer: iconContainer
+    property bool labelVisible: inHiddenLayout && !root.activeApplet
     property int /*PlasmaCore.Types.ItemStatus*/ status: model.status || PlasmaCore.Types.UnknownStatus
     property int /*PlasmaCore.Types.ItemStatus*/ effectiveStatus: model.effectiveStatus || PlasmaCore.Types.UnknownStatus
     readonly property bool inHiddenLayout: effectiveStatus === PlasmaCore.Types.PassiveStatus
@@ -81,6 +84,21 @@ PlasmaCore.ToolTipArea {
         }
     }
 
+    Loader {
+        anchors.centerIn: abstractItem
+        active: !abstractItem.inHiddenLayout
+                && !labelVisible
+                && itemId.length > 0
+                && plasmoid.configuration.hasBackgroundLayer
+        sourceComponent: Rectangle{
+            width: root.itemSize + Math.min(4, plasmoid.configuration.iconsSpacing)
+            height: width
+            radius: width * plasmoid.configuration.reversedBackgroundRadius/100
+            color: root.backgroundColor
+            opacity: plasmoid.configuration.reversedBackgroundOpacity/100
+        }
+    }
+
     MouseArea {
         propagateComposedEvents: true
         // This needs to be above applets when it's in the grid hidden area
@@ -122,12 +140,12 @@ PlasmaCore.ToolTipArea {
     }
 
     ColumnLayout {
+        id: itemColumn
         anchors.fill: abstractItem
         spacing: 0
 
         Item {
             id: iconContainer
-
             property alias container: abstractItem
             property alias inVisibleLayout: abstractItem.inVisibleLayout
             readonly property int size: abstractItem.inVisibleLayout ? root.itemSize : PlasmaCore.Units.iconSizes.medium
@@ -137,7 +155,9 @@ PlasmaCore.ToolTipArea {
             implicitWidth: root.vertical && abstractItem.inVisibleLayout ? abstractItem.width : size
             implicitHeight: !root.vertical && abstractItem.inVisibleLayout ? abstractItem.height : size
             Layout.topMargin: abstractItem.inHiddenLayout ? Math.round(PlasmaCore.Units.smallSpacing * 1.5): 0
+            opacity: !colorizerLoader.active
         }
+
         PlasmaComponents3.Label {
             id: label
 
@@ -161,6 +181,51 @@ PlasmaCore.ToolTipArea {
                     duration: PlasmaCore.Units.longDuration
                     easing.type: Easing.InOutQuad
                 }
+            }
+        }
+    }
+
+    //!Latte Coloring Approach with Colorizer and BrightnessContrast for hovering effect
+    Loader {
+        id: colorizerLoader
+        anchors.centerIn: itemColumn
+        width: iconContainer.width
+        height: iconContainer.height
+
+        active: !abstractItem.inHiddenLayout
+                && !labelVisible
+                && itemId.length > 0
+                && (plasmoid.configuration.blockedAutoColorItems.indexOf(itemId) < 0)
+                && ((root.inLatte && root.inLatteCustomPalette)
+                   || root.hasReversedColors)
+        z:1000
+
+        sourceComponent: ColorOverlay {
+            anchors.fill: parent
+            source: iconContainer
+            color: root.textColor
+        }
+    }
+
+    Loader {
+        id: hoveredColorizerLoader
+        anchors.centerIn: itemColumn
+        width: iconContainer.width
+        height: iconContainer.height
+
+        active: colorizerLoader.active
+        z:1001
+
+        sourceComponent: BrightnessContrast {
+            anchors.fill: parent
+            source: colorizerLoader.item
+            brightness: 0.2
+            contrast: 0.1
+
+            opacity: abstractItem.containsMouse ? 1 : 0
+
+            Behavior on opacity {
+                NumberAnimation { duration: 200 }
             }
         }
     }

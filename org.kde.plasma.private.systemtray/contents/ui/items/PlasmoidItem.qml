@@ -73,7 +73,7 @@ AbstractItem {
 
     //This is to make preloading effective, minimizes the scene changes
     function preloadFullRepresentationItem(fullRepresentationItem) {
-        if (fullRepresentationItem && fullRepresentationItem.parent === null) {
+        if (fullRepresentationItem && expandedRepresentation && fullRepresentationItem.parent === null) {
             fullRepresentationItem.width = expandedRepresentation.width
             fullRepresentationItem.width = expandedRepresentation.height
             fullRepresentationItem.parent = preloadedStorage;

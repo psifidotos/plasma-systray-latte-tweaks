@@ -28,8 +28,48 @@ MouseArea {
     readonly property alias systemTrayState: systemTrayState
     readonly property alias itemSize: tasksGrid.itemSize
     readonly property alias visibleLayout: tasksGrid
-    readonly property alias hiddenLayout: expandedRepresentation.hiddenLayout
+
     readonly property bool oneRowOrColumn: tasksGrid.rowsOrColumns == 1
+
+    property Item expandedRepresentation: null //set by the Dialog
+    property Item hiddenLayout: null //set by the Dialog
+    property Item containmentVisualParent: null //set but parent applet
+
+    readonly property bool hasReversedColors: plasmoid.configuration.hasBackgroundLayer && plasmoid.configuration.hasReversedColors
+
+    readonly property int constraintHints: plasmoid.configuration.canFillThickness ? PlasmaCore.Types.CanFillArea : PlasmaCore.Types.NoHint
+
+    readonly property color backgroundColor: {
+        if (inLatteCustomPalette) {
+            return root.hasReversedColors? latteBridge.palette.textColor : latteBridge.palette.backgroundColor;
+        } else {
+            return root.hasReversedColors? theme.textColor : theme.backgroundColor;
+        }
+    }
+
+    readonly property color textColor: {
+        if (inLatteCustomPalette) {
+            return root.hasReversedColors ? latteBridge.palette.backgroundColor : latteBridge.palette.textColor;
+        } else {
+            return root.hasReversedColors ? theme.backgroundColor : "transparent";
+        }
+    }
+
+    //! Latte Connection
+    property QtObject latteBridge: null
+    readonly property bool inLatte: latteBridge !== null
+    readonly property bool inLatteCustomPalette: inLatte && latteBridge.palette && latteBridge.applyPalette
+    readonly property bool internalMainHighlightEnabled: plasmoid.configuration.internalMainHighlightEnabled
+
+    onLatteBridgeChanged: {
+        if (latteBridge) {
+            latteBridge.actions.setProperty(plasmoid.id, "latteSideColoringEnabled", false);
+            cItemHighlight.informLatteIndicator();
+        }
+    }
+
+    onInternalMainHighlightEnabledChanged: cItemHighlight.informLatteIndicator()
+    //!
 
     onWheel: {
         // Don't propagate unhandled wheel events
@@ -47,8 +87,28 @@ MouseArea {
     }
 
     CurrentItemHighLight {
+        id: cItemHighlight
         location: plasmoid.location
         parent: root
+
+        function informLatteIndicator() {
+            if (!inLatte) {
+                return;
+            }
+
+            if (root.internalMainHighlightEnabled || parent !== root) {
+                latteBridge.actions.setProperty(plasmoid.id, "activeIndicatorEnabled", false);
+            } else if (parent) {
+                latteBridge.actions.setProperty(plasmoid.id, "activeIndicatorEnabled", true);
+            }
+        }
+
+        onParentChanged: cItemHighlight.informLatteIndicator()
+
+        Connections {
+            target: root
+            onInLatteChanged: cItemHighlight.informLatteIndicator()
+        }
     }
 
     DnD.DropArea {
@@ -94,20 +154,30 @@ MouseArea {
     //Main Layout
     GridLayout {
         id: mainLayout
-
         rowSpacing: 0
         columnSpacing: 0
         anchors.fill: parent
-
         flow: vertical ? GridLayout.TopToBottom : GridLayout.LeftToRight
 
         GridView {
             id: tasksGrid
-
             Layout.alignment: Qt.AlignCenter
-
             interactive: false //disable features we don't need
             flow: vertical ? GridView.LeftToRight : GridView.TopToBottom
+
+            implicitWidth: !root.vertical ? cellWidth * lengthLines : cellWidth * thicknessLines
+            implicitHeight: !root.vertical ? cellHeight * thicknessLines : cellHeight * lengthLines
+
+            cellWidth: !root.vertical && !autoSize ? smallSizeCellLength : autoSizeCellThickness + (!root.vertical ? plasmoid.configuration.iconsSpacing : 0)
+            cellHeight: root.vertical && !autoSize ? smallSizeCellLength : autoSizeCellThickness + (root.vertical ? plasmoid.configuration.iconsSpacing : 0)
+
+            // Used only by AbstractItem, but it's easiest to keep it here since it
+            // uses dimensions from this item to calculate the final value
+            readonly property int itemSize: autoSize ? PlasmaCore.Units.roundToIconSize(Math.min(Math.min(root.width / thicknessLines, root.height / thicknessLines), PlasmaCore.Units.iconSizes.enormous)) :
+                                                       smallIconSize
+
+            readonly property int smallSizeCellLength: smallIconSize + plasmoid.configuration.iconsSpacing
+            readonly property int autoSizeCellThickness: (gridThickness / thicknessLines)
 
             // The icon size to display when not using the auto-scaling setting
             readonly property int smallIconSize: PlasmaCore.Units.iconSizes.smallMedium
@@ -120,35 +190,14 @@ MouseArea {
             // Should change to 2 rows/columns on a 56px panel (in standard DPI)
             readonly property int rowsOrColumns: autoSize ? 1 : Math.max(1, Math.min(count, Math.floor(gridThickness / (smallIconSize + PlasmaCore.Units.smallSpacing))))
 
-            // Add margins only if the panel is larger than a small icon (to avoid large gaps between tiny icons)
-            readonly property int cellSpacing: PlasmaCore.Units.smallSpacing * 2
-            readonly property int smallSizeCellLength: gridThickness < smallIconSize ? smallIconSize : smallIconSize + cellSpacing
-            cellHeight: {
-                if (root.vertical) {
-                    return autoSize ? itemSize + (gridThickness < itemSize ? 0 : cellSpacing) : smallSizeCellLength
-                } else {
-                    return autoSize ? root.height : Math.floor(root.height / rowsOrColumns)
-                }
-            }
-            cellWidth: {
-                if (root.vertical) {
-                    return autoSize ? root.width : Math.floor(root.width / rowsOrColumns)
-                } else {
-                    return autoSize ? itemSize + (gridThickness < itemSize ? 0 : cellSpacing) : smallSizeCellLength
-                }
-            }
-
-            //depending on the form factor, we are calculating only one dimension, second is always the same as root/parent
-            implicitHeight: root.vertical ? cellHeight * Math.ceil(count / rowsOrColumns) : root.height
-            implicitWidth: !root.vertical ? cellWidth * Math.ceil(count / rowsOrColumns) : root.width
-
-            readonly property int itemSize: {
+            readonly property int thicknessLines: {
                 if (autoSize) {
-                    return PlasmaCore.Units.roundToIconSize(Math.min(Math.min(root.width, root.height) / rowsOrColumns, PlasmaCore.Units.iconSizes.enormous))
-                } else {
-                    return smallIconSize
+                    return 1;
                 }
+
+                return Math.min(plasmoid.configuration.maxLines, Math.max(1, Math.floor(gridThickness / smallIconSize)));
             }
+            readonly property int lengthLines: Math.ceil(count / thicknessLines)
 
             model: PlasmaCore.SortFilterModel {
                 sourceModel: plasmoid.nativeInterface.systemTrayModel
@@ -198,56 +247,16 @@ MouseArea {
             Layout.fillHeight: !vertical
             Layout.alignment: vertical ? Qt.AlignVCenter : Qt.AlignHCenter
             iconSize: tasksGrid.itemSize
-            visible: root.hiddenLayout.itemCount > 0
+            implicitWidth: tasksGrid.cellWidth
+            implicitHeight: tasksGrid.cellHeight
+            visible: root.hiddenLayout && root.hiddenLayout.itemCount > 0
         }
     }
 
     //Main popup
-    PlasmaCore.Dialog {
+    Loader {
         id: dialog
-        visualParent: root
-        flags: Qt.WindowStaysOnTopHint
-        location: plasmoid.location
-        hideOnWindowDeactivate: !plasmoid.configuration.pin
-        visible: systemTrayState.expanded
-        backgroundHints: (plasmoid.containmentDisplayHints & PlasmaCore.Types.DesktopFullyCovered) ? PlasmaCore.Dialog.SolidBackground : PlasmaCore.Dialog.StandardBackground
-
-        onVisibleChanged: {
-            systemTrayState.expanded = visible
-        }
-        mainItem: ExpandedRepresentation {
-            id: expandedRepresentation
-
-            Keys.onEscapePressed: {
-                systemTrayState.expanded = false
-            }
-
-            // Draws a line between the applet dialog and the panel
-            PlasmaCore.SvgItem {
-                // Only draw for popups of panel applets, not desktop applets
-                visible: [PlasmaCore.Types.TopEdge, PlasmaCore.Types.LeftEdge, PlasmaCore.Types.RightEdge, PlasmaCore.Types.BottomEdge]
-                    .includes(plasmoid.location)
-                anchors {
-                    top: plasmoid.location == PlasmaCore.Types.BottomEdge ? undefined : parent.top
-                    left: plasmoid.location == PlasmaCore.Types.RightEdge ? undefined : parent.left
-                    right: plasmoid.location == PlasmaCore.Types.LeftEdge ? undefined : parent.right
-                    bottom: plasmoid.location == PlasmaCore.Types.TopEdge ? undefined : parent.bottom
-                    topMargin: plasmoid.location == PlasmaCore.Types.BottomEdge ? undefined : -dialog.margins.top
-                    leftMargin: plasmoid.location == PlasmaCore.Types.RightEdge ? undefined : -dialog.margins.left
-                    rightMargin: plasmoid.location == PlasmaCore.Types.LeftEdge ? undefined : -dialog.margins.right
-                    bottomMargin: plasmoid.location == PlasmaCore.Types.TopEdge ? undefined : -dialog.margins.bottom
-                }
-                height: (plasmoid.location == PlasmaCore.Types.TopEdge || plasmoid.location == PlasmaCore.Types.BottomEdge) ? 1 : undefined
-                width: (plasmoid.location == PlasmaCore.Types.LeftEdge || plasmoid.location == PlasmaCore.Types.RightEdge) ? 1 : undefined
-                z: 999 /* Draw the line on top of the applet */
-                elementId: (plasmoid.location == PlasmaCore.Types.TopEdge || plasmoid.location == PlasmaCore.Types.BottomEdge) ? "horizontal-line" : "vertical-line"
-                svg: PlasmaCore.Svg {
-                    imagePath: "widgets/line"
-                }
-            }
-
-            LayoutMirroring.enabled: Qt.application.layoutDirection === Qt.RightToLeft
-            LayoutMirroring.childrenInherit: true
-        }
+        active: true
+        source: root.inLatte ? "dialogs/LatteCoreDialog.qml" : "dialogs/PlasmaCoreDialog.qml"
     }
 }

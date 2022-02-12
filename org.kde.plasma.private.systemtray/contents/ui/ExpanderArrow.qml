@@ -8,6 +8,10 @@
 import QtQuick 2.0
 import QtQuick.Layouts 1.1
 import org.kde.plasma.core 2.0 as PlasmaCore
+import org.kde.plasma.components 2.0 as PlasmaComponents
+import org.kde.plasma.extras 2.0 as PlasmaExtras
+
+import QtGraphicalEffects 1.0
 
 PlasmaCore.ToolTipArea {
     id: tooltip
@@ -18,6 +22,20 @@ PlasmaCore.ToolTipArea {
     implicitHeight: iconSize
 
     subText: systemTrayState.expanded ? i18n("Close popup") : i18n("Show hidden icons")
+
+    readonly property int length: units.iconSizes.smallMedium + plasmoid.configuration.iconsSpacing
+
+    Loader {
+        anchors.centerIn: tooltip
+        active: plasmoid.configuration.hasBackgroundLayer
+        sourceComponent: Rectangle{
+            width: root.itemSize + Math.min(4, plasmoid.configuration.iconsSpacing)
+            height: width
+            radius: width * plasmoid.configuration.reversedBackgroundRadius/100
+            color: root.backgroundColor
+            opacity: plasmoid.configuration.reversedBackgroundOpacity/100
+        }
+    }
 
     MouseArea {
         id: arrowMouseArea
@@ -33,25 +51,13 @@ PlasmaCore.ToolTipArea {
 
         PlasmaCore.SvgItem {
             id: arrow
-
             anchors.centerIn: parent
-            width: Math.min(parent.width, parent.height)
+
+            width: units.iconSizes.smallMedium
             height: width
-
             rotation: systemTrayState.expanded ? 180 : 0
-            Behavior on rotation {
-                RotationAnimation {
-                    duration: arrowMouseArea.arrowAnimationDuration
-                }
-            }
-            opacity: systemTrayState.expanded ? 0 : 1
-            Behavior on opacity {
-                NumberAnimation {
-                    duration: arrowMouseArea.arrowAnimationDuration
-                }
-            }
-
             svg: arrowSvg
+
             elementId: {
                 if (plasmoid.location === PlasmaCore.Types.TopEdge) {
                     return "down-arrow";
@@ -63,38 +69,79 @@ PlasmaCore.ToolTipArea {
                     return "up-arrow";
                 }
             }
+
+            Behavior on rotation {
+                RotationAnimation {
+                    duration: arrowMouseArea.arrowAnimationDuration
+                }
+            }
+
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: arrowMouseArea.arrowAnimationDuration
+                }
+            }
+
+
+
+            states: [
+                ///horizontal
+                State {
+                    name: "horizontal"
+                    when: !vertical
+
+                    AnchorChanges {
+                        target: arrow
+                        anchors{ right: parent.right; verticalCenter:parent.verticalCenter; bottom: undefined; horizontalCenter: undefined}
+                    }
+                },
+                State {
+                    name: "vertical"
+                    when: vertical
+
+                    AnchorChanges {
+                        target: arrow
+                        anchors{ right: undefined; verticalCenter:undefined; bottom: parent.bottom; horizontalCenter: parent.horizontalCenter}
+                    }
+                }
+            ]
         }
+    }
 
-        PlasmaCore.SvgItem {
-            anchors.centerIn: parent
-            width: arrow.width
-            height: arrow.height
+    //!Latte Coloring Approach with Colorizer and BrightnessContrast for hovering effect
+    Loader {
+        id: colorizerLoader
+        anchors.fill: parent
+        active: (root.inLatte && root.inLatteCustomPalette)
+                || root.hasReversedColors
+        z:1000
 
-            rotation: systemTrayState.expanded ? 0 : -180
-            Behavior on rotation {
-                RotationAnimation {
-                    duration: arrowMouseArea.arrowAnimationDuration
-                }
-            }
-            opacity: systemTrayState.expanded ? 1 : 0
+        sourceComponent: ColorOverlay {
+            anchors.fill: parent
+            source: arrowMouseArea
+            color: root.textColor
+        }
+    }
+
+    Loader {
+        id: hoveredColorizerLoader
+        anchors.fill: parent
+        active: colorizerLoader.active
+        z:1001
+
+        sourceComponent: BrightnessContrast {
+            anchors.fill: parent
+            source: colorizerLoader.item
+            brightness: 0.2
+            contrast: 0.1
+
+            opacity: arrowMouseArea.containsMouse ? 1 : 0
+
             Behavior on opacity {
-                NumberAnimation {
-                    duration: arrowMouseArea.arrowAnimationDuration
-                }
-            }
-
-            svg: arrowSvg
-            elementId: {
-                if (plasmoid.location === PlasmaCore.Types.TopEdge) {
-                    return "up-arrow";
-                } else if (plasmoid.location === PlasmaCore.Types.LeftEdge) {
-                    return "left-arrow";
-                } else if (plasmoid.location === PlasmaCore.Types.RightEdge) {
-                    return "right-arrow";
-                } else {
-                    return "down-arrow";
-                }
+                NumberAnimation { duration: 200 }
             }
         }
     }
+
+
 }

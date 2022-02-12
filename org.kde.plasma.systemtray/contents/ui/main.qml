@@ -12,7 +12,6 @@ import org.kde.plasma.plasmoid 2.0
 //SystemTray is a Containment. To have it presented as a widget in Plasma we need thin wrapping applet
 Item {
     id: root
-
     Layout.minimumWidth: internalSystray ? internalSystray.Layout.minimumWidth : 0
     Layout.minimumHeight: internalSystray ? internalSystray.Layout.minimumHeight : 0
     Layout.preferredWidth: Layout.minimumWidth
@@ -21,12 +20,15 @@ Item {
     Plasmoid.preferredRepresentation: Plasmoid.fullRepresentation
     Plasmoid.status: internalSystray ? internalSystray.status : PlasmaCore.Types.UnknownStatus
 
+    Plasmoid.constraintHints: internalSystrayMainItem ? internalSystrayMainItem.constraintHints : PlasmaCore.Types.NoHint
+
     //synchronize state between SystemTray and wrapping Applet
     Plasmoid.onExpandedChanged: {
         if (internalSystray) {
             internalSystray.expanded = plasmoid.expanded
         }
     }
+
     Connections {
         target: internalSystray
         function onExpandedChanged() {
@@ -34,7 +36,24 @@ Item {
         }
     }
 
-    property Item internalSystray
+    property Item internalSystray: null
+    property Item internalSystrayMainItem: null
+
+    //! Latte Connection
+    property QtObject latteBridge: null
+    readonly property bool inLatte: latteBridge !== null
+    readonly property Item containmentVisualParent: root.parent && root.parent.parent ? root.parent.parent.parent : null
+
+    onLatteBridgeChanged: checkAndUpdateInternalLatteBridge();
+    onInternalSystrayChanged: checkAndUpdateInternalLatteBridge();
+
+    Binding {
+        target: internalSystrayMainItem
+        property: "containmentVisualParent"
+        value: root.containmentVisualParent
+    }
+
+    //!
 
     Component.onCompleted: {
         root.internalSystray = plasmoid.nativeInterface.internalSystray;
@@ -52,6 +71,34 @@ Item {
             root.internalSystray = plasmoid.nativeInterface.internalSystray;
             root.internalSystray.parent = root;
             root.internalSystray.anchors.fill = root;
+
+            checkAndUpdateInternalLatteBridge();
+        }
+    }
+
+    function checkAndUpdateInternalLatteBridge() {
+        if (!latteBridge || !internalSystray) {
+            return;
+        }
+
+        var level0 = internalSystray.children;
+
+        for(var i=0; i<level0.length; ++i){
+            if (level0[i].hasOwnProperty("latteBridge")) {
+                internalSystrayMainItem = level0[i];
+                level0[i].latteBridge = root.latteBridge;
+                break;
+            }
+
+            var level1 = level0[i].children;
+            for(var j=0; j<level1.length; ++j){
+                if (level1[j].hasOwnProperty("latteBridge")) {
+                    internalSystrayMainItem = level1[j];
+                    level1[j].latteBridge = root.latteBridge;
+                    break;
+                }
+            }
         }
     }
 }
+

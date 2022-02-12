@@ -12,9 +12,18 @@ PlasmaCore.FrameSvgItem {
     id: currentItemHighLight
 
     property int location
-
     property bool animationEnabled: true
     property var highlightedItem: null
+
+    z: -1 // always draw behind icons
+    width: parent.width
+    height: parent.height
+    opacity: parent && systemTrayState.expanded && (plasmoid.configuration.internalMainHighlightEnabled || isAppletExpanded) ? 1 : 0
+
+    readonly property bool isAppletExpanded: systemTrayState.activeApplet
+                                             && systemTrayState.activeApplet.parent
+                                             && systemTrayState.activeApplet.parent.inVisibleLayout
+
 
     property var containerMargins: {
         let item = currentItemHighLight;
@@ -26,9 +35,6 @@ PlasmaCore.FrameSvgItem {
         }
         return undefined;
     }
-
-    z: -1 // always draw behind icons
-    opacity: systemTrayState.expanded ? 1 : 0
 
     imagePath: "widgets/tabbar"
     prefix: {

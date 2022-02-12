@@ -18,5 +18,5 @@ ConfigModel {
          name: i18n("Entries")
          icon: "preferences-desktop-notification"
          source: "ConfigEntries.qml"
-    }
+    } 
 }
