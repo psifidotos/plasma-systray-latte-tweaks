@@ -27,24 +27,16 @@ AbstractItem {
             return
         }
         //forward click event to the applet
-        if (mouse.button === Qt.LeftButton || mouse.button === Qt.MidButton) {
-            const mouseArea = findMouseArea(applet.compactRepresentationItem)
-            if (mouseArea) {
-                mouseArea.clicked(mouse)
-            } else if (mouse.button === Qt.LeftButton) {//falback
-                applet.expanded = true
-            }
+        const mouseArea = findMouseArea(applet.compactRepresentationItem)
+        if (mouseArea) {
+            mouseArea.clicked(mouse)
+        } else if (mouse.button === Qt.LeftButton) {//falback
+            applet.expanded = true
         }
     }
-    onPressed: {
-        if (mouse.button === Qt.RightButton) {
-            plasmoidContainer.contextMenu(mouse);
-        }
-    }
-    onContextMenu: {
-        if (applet) {
-            plasmoid.nativeInterface.showPlasmoidMenu(applet, 0, plasmoidContainer.inHiddenLayout ? applet.height : 0);
-        }
+    onContextMenu: if (applet) {
+        plasmoid.nativeInterface.showPlasmoidMenu(applet, 0,
+                                                  plasmoidContainer.inHiddenLayout ? applet.height : 0);
     }
     onWheel: {
         if (!applet) {

@@ -10,7 +10,7 @@ import QtQuick.Layouts 1.1
 import org.kde.plasma.core 2.1 as PlasmaCore
 import org.kde.plasma.plasmoid 2.0
 import org.kde.draganddrop 2.0 as DnD
-import org.kde.kirigami 2.5 as Kirigami
+import org.kde.kirigami 2.5 as Kirigami // For Settings.tabletMode
 
 import "items"
 
@@ -121,10 +121,11 @@ MouseArea {
             readonly property int rowsOrColumns: autoSize ? 1 : Math.max(1, Math.min(count, Math.floor(gridThickness / (smallIconSize + PlasmaCore.Units.smallSpacing))))
 
             // Add margins only if the panel is larger than a small icon (to avoid large gaps between tiny icons)
-            readonly property int smallSizeCellLength: gridThickness < smallIconSize ? smallIconSize : smallIconSize + PlasmaCore.Units.smallSpacing * 2
+            readonly property int cellSpacing: PlasmaCore.Units.smallSpacing * 2
+            readonly property int smallSizeCellLength: gridThickness < smallIconSize ? smallIconSize : smallIconSize + cellSpacing
             cellHeight: {
                 if (root.vertical) {
-                    return autoSize ? root.width + PlasmaCore.Units.smallSpacing : smallSizeCellLength
+                    return autoSize ? itemSize + (gridThickness < itemSize ? 0 : cellSpacing) : smallSizeCellLength
                 } else {
                     return autoSize ? root.height : Math.floor(root.height / rowsOrColumns)
                 }
@@ -133,18 +134,17 @@ MouseArea {
                 if (root.vertical) {
                     return autoSize ? root.width : Math.floor(root.width / rowsOrColumns)
                 } else {
-                    return autoSize ? root.height + PlasmaCore.Units.smallSpacing : smallSizeCellLength
+                    return autoSize ? itemSize + (gridThickness < itemSize ? 0 : cellSpacing) : smallSizeCellLength
                 }
             }
 
-            //depending on the form factor, we are calculating only one dimention, second is always the same as root/parent
+            //depending on the form factor, we are calculating only one dimension, second is always the same as root/parent
             implicitHeight: root.vertical ? cellHeight * Math.ceil(count / rowsOrColumns) : root.height
             implicitWidth: !root.vertical ? cellWidth * Math.ceil(count / rowsOrColumns) : root.width
 
             readonly property int itemSize: {
                 if (autoSize) {
-                    const size = Math.min(implicitWidth / rowsOrColumns, implicitHeight / rowsOrColumns)
-                    return PlasmaCore.Units.roundToIconSize(Math.min(size, PlasmaCore.Units.iconSizes.enormous))
+                    return PlasmaCore.Units.roundToIconSize(Math.min(Math.min(root.width, root.height) / rowsOrColumns, PlasmaCore.Units.iconSizes.enormous))
                 } else {
                     return smallIconSize
                 }
@@ -210,6 +210,7 @@ MouseArea {
         location: plasmoid.location
         hideOnWindowDeactivate: !plasmoid.configuration.pin
         visible: systemTrayState.expanded
+        backgroundHints: (plasmoid.containmentDisplayHints & PlasmaCore.Types.DesktopFullyCovered) ? PlasmaCore.Dialog.SolidBackground : PlasmaCore.Dialog.StandardBackground
 
         onVisibleChanged: {
             systemTrayState.expanded = visible
@@ -223,6 +224,9 @@ MouseArea {
 
             // Draws a line between the applet dialog and the panel
             PlasmaCore.SvgItem {
+                // Only draw for popups of panel applets, not desktop applets
+                visible: [PlasmaCore.Types.TopEdge, PlasmaCore.Types.LeftEdge, PlasmaCore.Types.RightEdge, PlasmaCore.Types.BottomEdge]
+                    .includes(plasmoid.location)
                 anchors {
                     top: plasmoid.location == PlasmaCore.Types.BottomEdge ? undefined : parent.top
                     left: plasmoid.location == PlasmaCore.Types.RightEdge ? undefined : parent.left
