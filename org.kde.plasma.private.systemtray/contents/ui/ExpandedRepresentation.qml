@@ -14,6 +14,7 @@ import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.components 2.0 as PC2
 import org.kde.plasma.components 3.0 as PlasmaComponents
 import org.kde.plasma.extras 2.0 as PlasmaExtras
+import org.kde.plasma.plasmoid 2.0
 
 Item {
     id: popup
@@ -32,6 +33,7 @@ Item {
     Layout.maximumHeight: defaultHeight
 
     property alias hiddenLayout: hiddenItemsView.layout
+    property alias plasmoidContainer: container
 
     // Header
     PlasmaExtras.PlasmoidHeading {
@@ -152,8 +154,8 @@ Item {
             PlasmaComponents.ToolButton {
                 id: pinButton
                 checkable: true
-                checked: plasmoid.configuration.pin
-                onToggled: plasmoid.configuration.pin = checked
+                checked: Plasmoid.configuration.pin
+                onToggled: Plasmoid.configuration.pin = checked
                 icon.name: "window-pin"
                 PlasmaComponents.ToolTip {
                     text: i18n("Keep Open")
@@ -168,6 +170,11 @@ Item {
             Layout.fillHeight: true
             Layout.topMargin: PlasmaCore.Units.smallSpacing
             visible: !systemTrayState.activeApplet
+            onVisibleChanged: {
+                if (visible) {
+                    layout.forceActiveFocus();
+                }
+            }
         }
 
         // Container for currently visible item
@@ -179,6 +186,11 @@ Item {
 
             // We need to add margin on the top so it matches the dialog's own margin
             Layout.topMargin: mergeHeadings ? 0 : dialog.margins.top
+            onVisibleChanged: {
+                if (visible) {
+                    forceActiveFocus();
+                }
+            }
         }
     }
 

@@ -46,9 +46,9 @@ QtObject {
 
     onExpandedChanged: {
         if (expanded) {
-            plasmoid.status = PlasmaCore.Types.RequiresAttentionStatus
+            Plasmoid.status = PlasmaCore.Types.RequiresAttentionStatus
         } else {
-            plasmoid.status = PlasmaCore.Types.PassiveStatus;
+            Plasmoid.status = PlasmaCore.Types.PassiveStatus;
             if (activeApplet) {
                 // if not expanded we don't have an active applet anymore
                 activeApplet.expanded = false
@@ -56,21 +56,21 @@ QtObject {
             }
         }
         acceptExpandedChange = false
-        plasmoid.expanded = expanded
+        Plasmoid.expanded = expanded
     }
 
     //listen on SystemTray AppletInterface signals
     property Connections plasmoidConnections: Connections {
-        target: plasmoid
+        target: Plasmoid.self
         //emitted when activation is requested, for example by using a global keyboard shortcut
         function onActivated() {
             acceptExpandedChange = true
         }
         function onExpandedChanged() {
             if (acceptExpandedChange) {
-                expanded = plasmoid.expanded
+                expanded = Plasmoid.expanded
             } else {
-                plasmoid.expanded = expanded
+                Plasmoid.expanded = expanded
             }
         }
     }

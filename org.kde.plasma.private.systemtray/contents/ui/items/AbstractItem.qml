@@ -8,6 +8,7 @@
 
 import QtQuick 2.2
 import QtQuick.Layouts 1.1
+import org.kde.plasma.plasmoid 2.0
 import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.components 3.0 as PlasmaComponents3
 
@@ -21,16 +22,28 @@ PlasmaCore.ToolTipArea {
 
     property string itemId
     property alias text: label.text
+    property alias labelHeight: label.implicitHeight
     property alias iconContainer: iconContainer
     property int /*PlasmaCore.Types.ItemStatus*/ status: model.status || PlasmaCore.Types.UnknownStatus
     property int /*PlasmaCore.Types.ItemStatus*/ effectiveStatus: model.effectiveStatus || PlasmaCore.Types.UnknownStatus
     readonly property bool inHiddenLayout: effectiveStatus === PlasmaCore.Types.PassiveStatus
     readonly property bool inVisibleLayout: effectiveStatus === PlasmaCore.Types.ActiveStatus
 
+    // input agnostic way to trigger the main action
+    signal activated(var pos)
+
+    // proxy signals for MouseArea
     signal clicked(var mouse)
     signal pressed(var mouse)
     signal wheel(var wheel)
     signal contextMenu(var mouse)
+
+    // Make sure the proper item manages the keyboard
+    onActiveFocusChanged: {
+        if (activeFocus) {
+            iconContainer.forceActiveFocus();
+        }
+    }
 
     /* subclasses need to assign to this tooltip properties
     mainText:
@@ -39,14 +52,14 @@ PlasmaCore.ToolTipArea {
 
     location: {
         if (inHiddenLayout) {
-            if (LayoutMirroring.enabled && plasmoid.location !== PlasmaCore.Types.RightEdge) {
+            if (LayoutMirroring.enabled && Plasmoid.location !== PlasmaCore.Types.RightEdge) {
                 return PlasmaCore.Types.LeftEdge;
-            } else if (plasmoid.location !== PlasmaCore.Types.LeftEdge) {
+            } else if (Plasmoid.location !== PlasmaCore.Types.LeftEdge) {
                 return PlasmaCore.Types.RightEdge;
             }
         }
 
-        return plasmoid.location;
+        return Plasmoid.location;
     }
 
     PulseAnimation {
@@ -56,7 +69,7 @@ PlasmaCore.ToolTipArea {
             PlasmaCore.Units.longDuration > 0
     }
 
-    function activated() {
+    function startActivatedAnimation() {
         activatedAnimation.start()
     }
 
@@ -106,9 +119,6 @@ PlasmaCore.ToolTipArea {
             }
             abstractItem.hideImmediately()
             abstractItem.pressed(mouse)
-            if (mouse.button === Qt.RightButton) {
-                abstractItem.contextMenu(mouse);
-            }
         }
         onPressAndHold: if (mouse.button === Qt.LeftButton) {
             abstractItem.contextMenu(mouse)
@@ -125,8 +135,28 @@ PlasmaCore.ToolTipArea {
         anchors.fill: abstractItem
         spacing: 0
 
-        Item {
+        FocusScope {
             id: iconContainer
+            activeFocusOnTab: true
+            Accessible.name: abstractItem.text
+            Accessible.description: abstractItem.subText
+            Accessible.role: Accessible.Button
+            Accessible.onPressAction: abstractItem.activated(Qt.point(iconContainer.width/2, iconContainer.height/2));
+
+            Keys.onPressed: {
+                switch (event.key) {
+                    case Qt.Key_Space:
+                    case Qt.Key_Enter:
+                    case Qt.Key_Return:
+                    case Qt.Key_Select:
+                        abstractItem.activated(Qt.point(width/2, height/2));
+                        break;
+                    case Qt.Key_Menu:
+                        abstractItem.contextMenu(null);
+                        event.accepted = true;
+                        break;
+                }
+            }
 
             property alias container: abstractItem
             property alias inVisibleLayout: abstractItem.inVisibleLayout
@@ -143,6 +173,11 @@ PlasmaCore.ToolTipArea {
 
             Layout.fillWidth: true
             Layout.fillHeight: abstractItem.inHiddenLayout ? true : false
+            //! Minimum required height for all labels is used in order for all
+            //! labels to be aligned properly at all items. At the same time this approach does not
+            //! enforce labels with 3 lines at all cases so translations that require only one or two
+            //! lines will always look consistent with no too much padding
+            Layout.minimumHeight: abstractItem.inHiddenLayout ? hiddenTasks.minLabelHeight : 0
             Layout.leftMargin: abstractItem.inHiddenLayout ? PlasmaCore.Units.smallSpacing : 0
             Layout.rightMargin: abstractItem.inHiddenLayout ? PlasmaCore.Units.smallSpacing : 0
             Layout.bottomMargin: abstractItem.inHiddenLayout ? PlasmaCore.Units.smallSpacing : 0

@@ -7,22 +7,41 @@
 
 import QtQuick 2.0
 import QtQuick.Layouts 1.1
+import org.kde.plasma.plasmoid 2.0
 import org.kde.plasma.core 2.0 as PlasmaCore
 
 PlasmaCore.ToolTipArea {
     id: tooltip
 
-    property bool vertical: plasmoid.formFactor === PlasmaCore.Types.Vertical
+    property bool vertical: Plasmoid.formFactor === PlasmaCore.Types.Vertical
     property int iconSize: PlasmaCore.Units.iconSizes.smallMedium
     implicitWidth: iconSize
     implicitHeight: iconSize
+    activeFocusOnTab: true
+
+    Accessible.name: i18n("Expand System Tray")
+    Accessible.description: i18n("Show all the items in the system tray in a popup")
+    Accessible.role: Accessible.Button
+
+    Keys.onPressed: {
+        switch (event.key) {
+        case Qt.Key_Space:
+        case Qt.Key_Enter:
+        case Qt.Key_Return:
+        case Qt.Key_Select:
+            systemTrayState.expanded = !systemTrayState.expanded;
+        }
+    }
 
     subText: systemTrayState.expanded ? i18n("Close popup") : i18n("Show hidden icons")
 
     MouseArea {
         id: arrowMouseArea
         anchors.fill: parent
-        onClicked: systemTrayState.expanded = !systemTrayState.expanded
+        onClicked: {
+            systemTrayState.expanded = !systemTrayState.expanded;
+            expandedRepresentation.hiddenLayout.currentIndex = -1;
+        }
 
         readonly property int arrowAnimationDuration: PlasmaCore.Units.shortDuration
 
@@ -53,11 +72,11 @@ PlasmaCore.ToolTipArea {
 
             svg: arrowSvg
             elementId: {
-                if (plasmoid.location === PlasmaCore.Types.TopEdge) {
+                if (Plasmoid.location === PlasmaCore.Types.TopEdge) {
                     return "down-arrow";
-                } else if (plasmoid.location === PlasmaCore.Types.LeftEdge) {
+                } else if (Plasmoid.location === PlasmaCore.Types.LeftEdge) {
                     return "right-arrow";
-                } else if (plasmoid.location === PlasmaCore.Types.RightEdge) {
+                } else if (Plasmoid.location === PlasmaCore.Types.RightEdge) {
                     return "left-arrow";
                 } else {
                     return "up-arrow";
@@ -85,11 +104,11 @@ PlasmaCore.ToolTipArea {
 
             svg: arrowSvg
             elementId: {
-                if (plasmoid.location === PlasmaCore.Types.TopEdge) {
+                if (Plasmoid.location === PlasmaCore.Types.TopEdge) {
                     return "up-arrow";
-                } else if (plasmoid.location === PlasmaCore.Types.LeftEdge) {
+                } else if (Plasmoid.location === PlasmaCore.Types.LeftEdge) {
                     return "left-arrow";
-                } else if (plasmoid.location === PlasmaCore.Types.RightEdge) {
+                } else if (Plasmoid.location === PlasmaCore.Types.RightEdge) {
                     return "right-arrow";
                 } else {
                     return "down-arrow";

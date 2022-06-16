@@ -5,6 +5,7 @@
 */
 
 import QtQuick 2.1
+import org.kde.plasma.plasmoid 2.0
 import org.kde.plasma.core 2.0 as PlasmaCore
 
 AbstractItem {
@@ -35,41 +36,48 @@ AbstractItem {
         active: taskIcon.containsMouse
     }
 
+    onActivated: {
+        let service = model.Service;
+        let operation = service.operationDescription("Activate");
+        operation.x = pos.x; //mouseX
+        operation.y = pos.y; //mouseY
+        let job = service.startOperationCall(operation);
+        job.finished.connect(() => {
+            if (!job.result) {
+                // On error try to invoke the context menu.
+                // Workaround primarily for apps using libappindicator.
+                openContextMenu(pos);
+            }
+        })
+        taskIcon.startActivatedAnimation();
+    }
+
     onContextMenu: {
-        openContextMenu(plasmoid.nativeInterface.popupPosition(taskIcon, mouse.x, mouse.y))
+        openContextMenu(Plasmoid.nativeInterface.popupPosition(taskIcon, mouse.x, mouse.y))
     }
 
     onClicked: {
-        var pos = plasmoid.nativeInterface.popupPosition(taskIcon, mouse.x, mouse.y);
-        var service = model.Service;
-
+        var pos = Plasmoid.nativeInterface.popupPosition(taskIcon, mouse.x, mouse.y);
         switch (mouse.button) {
         case Qt.LeftButton:
-            var operation = service.operationDescription("Activate");
-            operation.x = pos.x;
-            operation.y = pos.y;
-            var job = service.startOperationCall(operation);
-            job.finished.connect(function () {
-                if (!job.result) {
-                    // On error try to invoke the context menu.
-                    // Workaround primarily for apps using libappindicator.
-                    openContextMenu(pos);
-                }
-            });
-            taskIcon.activated()
+            taskIcon.activated(pos)
+            break;
+        case Qt.RightButton:
+            openContextMenu(pos);
             break;
         case Qt.MiddleButton:
             var operation = service.operationDescription("SecondaryActivate");
+            let service = model.Service;
             operation.x = pos.x;
 
             operation.y = pos.y;
             service.startOperationCall(operation);
-            taskIcon.activated()
+            taskIcon.startActivatedAnimation()
             break;
         }
     }
 
-    function openContextMenu(pos) {
+    function openContextMenu(pos = Qt.point(width/2, height/2)) {
         var service = model.Service;
         var operation = service.operationDescription("ContextMenu");
         operation.x = pos.x;
@@ -77,7 +85,7 @@ AbstractItem {
 
         var job = service.startOperationCall(operation);
         job.finished.connect(function () {
-            plasmoid.nativeInterface.showStatusNotifierContextMenu(job, taskIcon);
+            Plasmoid.nativeInterface.showStatusNotifierContextMenu(job, taskIcon);
         });
     }
 
